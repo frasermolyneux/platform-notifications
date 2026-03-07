@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>net9.0;net10.0</TargetFrameworks>
+		<RootNamespace>MX.Platform.Notifications.Api.Client.V1</RootNamespace>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageId>MX.Platform.Notifications.Api.Client.V1</PackageId>
+		<Product>Molyneux.IO Platform Notifications</Product>
+		<Title>Platform Notifications API Client V1</Title>
+		<Description>This package provides a web service client for the Platform Notifications service.</Description>
+		<PackageProjectUrl>https://github.com/frasermolyneux/platform-notifications</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/frasermolyneux/platform-notifications</RepositoryUrl>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Azure.Identity" Version="1.17.1" />
+		<PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="10.0.3" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.3" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.3" />
+		<PackageReference Include="Microsoft.Extensions.Options" Version="10.0.3" />
+		<PackageReference Include="MX.Api.Client" Version="2.3.25" />
+		<PackageReference Include="MX.Api.Abstractions" Version="2.3.25" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+		<PackageReference Include="RestSharp" Version="113.1.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\MX.Platform.Notifications.Abstractions.V1\MX.Platform.Notifications.Abstractions.V1.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="README.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
+
+</Project>

@@ -18,6 +18,26 @@ resource "azurerm_storage_account" "sa" {
   tags = var.tags
 }
 
+resource "azurerm_storage_management_policy" "lifecycle" {
+  storage_account_id = azurerm_storage_account.sa.id
+
+  rule {
+    name    = "cleanup-orphaned-claim-check-blobs"
+    enabled = true
+
+    filters {
+      prefix_match = ["email-attachments"]
+      blob_types   = ["blockBlob"]
+    }
+
+    actions {
+      base_blob {
+        delete_after_days_since_modification_greater_than = 7
+      }
+    }
+  }
+}
+
 resource "azurerm_storage_container" "email_attachments" {
   name                  = "email-attachments"
   storage_account_id    = azurerm_storage_account.sa.id
