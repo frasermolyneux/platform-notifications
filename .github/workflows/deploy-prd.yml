@@ -147,11 +147,11 @@ jobs:
     concurrency:
       group: ${{ github.repository }}-dev
     steps:
-      - uses: frasermolyneux/actions/deploy-app-service@deploy-app-service/v1.2
+      - uses: frasermolyneux/actions/deploy-function-app@deploy-function-app/v1.2
         with:
-          web-artifact-name: "MX.Platform.Notifications.FuncApp"
-          web-app-name: ${{ needs.terraform-plan-and-apply-dev.outputs.function_app_name }}
-          resource-group-name: ${{ needs.terraform-plan-and-apply-dev.outputs.resource_group_name }}
+          function-app-artifact-name: "MX.Platform.Notifications.FuncApp"
+          function-app-name: ${{ needs.terraform-plan-and-apply-dev.outputs.function_app_name }}
+          function-app-resource-group: ${{ needs.terraform-plan-and-apply-dev.outputs.resource_group_name }}
           AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
           AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
           AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
@@ -268,11 +268,11 @@ jobs:
     concurrency:
       group: ${{ github.repository }}-prd
     steps:
-      - uses: frasermolyneux/actions/deploy-app-service@deploy-app-service/v1.2
+      - uses: frasermolyneux/actions/deploy-function-app@deploy-function-app/v1.2
         with:
-          web-artifact-name: "MX.Platform.Notifications.FuncApp"
-          web-app-name: ${{ needs.terraform-plan-and-apply-prd.outputs.function_app_name }}
-          resource-group-name: ${{ needs.terraform-plan-and-apply-prd.outputs.resource_group_name }}
+          function-app-artifact-name: "MX.Platform.Notifications.FuncApp"
+          function-app-name: ${{ needs.terraform-plan-and-apply-prd.outputs.function_app_name }}
+          function-app-resource-group: ${{ needs.terraform-plan-and-apply-prd.outputs.resource_group_name }}
           AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
           AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
           AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}

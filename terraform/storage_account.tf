@@ -43,3 +43,9 @@ resource "azurerm_storage_container" "email_attachments" {
   storage_account_id    = azurerm_storage_account.sa.id
   container_access_type = "private"
 }
+
+resource "azurerm_storage_container" "deployments" {
+  name                  = "app-package"
+  storage_account_id    = azurerm_storage_account.sa.id
+  container_access_type = "private"
+}

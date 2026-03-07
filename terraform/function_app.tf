@@ -1,4 +1,4 @@
-resource "azurerm_linux_function_app" "func" {
+resource "azurerm_function_app_flex_consumption" "func" {
   name = local.func_app_name
 
   tags = var.tags
@@ -8,36 +8,18 @@ resource "azurerm_linux_function_app" "func" {
 
   service_plan_id = azurerm_service_plan.asp.id
 
-  storage_account_name          = azurerm_storage_account.sa.name
-  storage_uses_managed_identity = true
+  storage_container_type      = "blobContainer"
+  storage_container_endpoint  = "${azurerm_storage_account.sa.primary_blob_endpoint}${azurerm_storage_container.deployments.name}"
+  storage_authentication_type = "SystemAssignedIdentity"
 
-  https_only = true
-
-  functions_extension_version = "~4"
+  runtime_name    = "dotnet-isolated"
+  runtime_version = "9.0"
 
   identity {
     type = "SystemAssigned"
   }
 
-  site_config {
-    application_stack {
-      use_dotnet_isolated_runtime = true
-      dotnet_version              = "9.0"
-    }
-
-    cors {
-      allowed_origins = ["https://portal.azure.com"]
-    }
-
-    application_insights_connection_string = azurerm_application_insights.ai.connection_string
-    application_insights_key               = azurerm_application_insights.ai.instrumentation_key
-
-    ftps_state          = "Disabled"
-    minimum_tls_version = "1.2"
-
-    health_check_path                 = "/api/v1/health"
-    health_check_eviction_time_in_min = 5
-  }
+  site_config {}
 
   auth_settings_v2 {
     auth_enabled    = true
@@ -61,14 +43,13 @@ resource "azurerm_linux_function_app" "func" {
   }
 
   app_settings = {
-    "ApplicationInsightsAgent_EXTENSION_VERSION"    = "~3"
-    "ServiceBusConnection__fullyQualifiedNamespace" = format("%s.servicebus.windows.net", azurerm_servicebus_namespace.sb.name)
-    "ACS__Endpoint"                                 = "https://${azurerm_communication_service.acs.name}.unitedkingdom.communication.azure.com"
-    "StorageAccount__BlobServiceUri"                = "https://${azurerm_storage_account.sa.name}.blob.core.windows.net"
-
-    // https://learn.microsoft.com/en-us/azure/azure-monitor/profiler/profiler-azure-functions#app-settings-for-enabling-profiler
-    "APPINSIGHTS_PROFILERFEATURE_VERSION"  = "1.0.0"
-    "DiagnosticServices_EXTENSION_VERSION" = "~3"
+    "APPLICATIONINSIGHTS_CONNECTION_STRING"          = azurerm_application_insights.ai.connection_string
+    "ApplicationInsightsAgent_EXTENSION_VERSION"     = "~3"
+    "ServiceBusConnection__fullyQualifiedNamespace"  = format("%s.servicebus.windows.net", azurerm_servicebus_namespace.sb.name)
+    "ACS__Endpoint"                                  = "https://${azurerm_communication_service.acs.name}.unitedkingdom.communication.azure.com"
+    "StorageAccount__BlobServiceUri"                 = "https://${azurerm_storage_account.sa.name}.blob.core.windows.net"
+    "APPINSIGHTS_PROFILERFEATURE_VERSION"            = "1.0.0"
+    "DiagnosticServices_EXTENSION_VERSION"           = "~3"
   }
 
   lifecycle {

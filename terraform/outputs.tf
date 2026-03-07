@@ -3,7 +3,7 @@ output "resource_group_name" {
 }
 
 output "function_app_name" {
-  value = azurerm_linux_function_app.func.name
+  value = azurerm_function_app_flex_consumption.func.name
 }
 
 output "api_management_name" {
