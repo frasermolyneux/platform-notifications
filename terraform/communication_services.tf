@@ -19,6 +19,8 @@ resource "azurerm_email_communication_service_domain" "azure_managed" {
   name              = "AzureManagedDomain"
   email_service_id  = azurerm_email_communication_service.email.id
   domain_management = "AzureManaged"
+
+  tags = var.tags
 }
 
 # Custom domains (only in prd - controlled by sending_domains variable)
@@ -28,6 +30,8 @@ resource "azurerm_email_communication_service_domain" "custom" {
   name              = each.key
   email_service_id  = azurerm_email_communication_service.email.id
   domain_management = "CustomerManaged"
+
+  tags = var.tags
 
   lifecycle {
     ignore_changes = [
