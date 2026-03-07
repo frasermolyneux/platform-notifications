@@ -6,13 +6,13 @@ locals {
 
   app_insights_name = "ai-${var.workload}-${var.environment}-${var.location}"
 
-  func_app_name        = "fn-${var.workload}-${var.environment}-${var.location}-${random_id.environment_id.hex}"
+  func_app_name        = substr("fn-${var.workload}-${var.environment}-${var.location}-${random_id.environment_id.hex}", 0, 60)
   storage_account_name = lower("sanotif${var.environment}${random_id.storage.hex}")
 
-  api_management_name      = "apim-${var.workload}-${var.environment}-${var.location}-${random_id.environment_id.hex}"
+  api_management_name      = substr("apim-${var.workload}-${var.environment}-${var.location}-${random_id.environment_id.hex}", 0, 50)
   api_management_root_path = "notifications-api"
 
-  service_bus_namespace_name = "sb-${var.workload}-${var.environment}-${var.location}-${random_id.environment_id.hex}"
+  service_bus_namespace_name = substr("sb-${var.workload}-${var.environment}-${var.location}-${random_id.environment_id.hex}", 0, 50)
 
   entra_api_app_display_name = "platform-notifications-api-${var.environment}"
   entra_api_identifier_uri   = format("api://%s/%s", data.azuread_client_config.current.tenant_id, local.entra_api_app_display_name)
