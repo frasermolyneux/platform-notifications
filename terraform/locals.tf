@@ -41,4 +41,14 @@ locals {
     dev = 25
     prd = 75
   }
+
+  action_group_map = {
+    critical      = data.terraform_remote_state.platform_monitoring.outputs.monitor_action_groups.critical
+    high          = data.terraform_remote_state.platform_monitoring.outputs.monitor_action_groups.high
+    moderate      = data.terraform_remote_state.platform_monitoring.outputs.monitor_action_groups.moderate
+    low           = data.terraform_remote_state.platform_monitoring.outputs.monitor_action_groups.low
+    informational = data.terraform_remote_state.platform_monitoring.outputs.monitor_action_groups.informational
+  }
+
+  key_vault_name = "kv-${random_id.environment_id.hex}-${local.location_short}"
 }
