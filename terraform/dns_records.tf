@@ -2,7 +2,9 @@
 data "cloudflare_zone" "domains" {
   for_each = { for d in local.cloudflare_domains : d.name => d }
 
-  name = each.key
+  filter = {
+    name = each.key
+  }
 }
 
 # --- Azure DNS records for ACS domain verification ---
@@ -76,7 +78,7 @@ resource "azurerm_dns_cname_record" "acs_dkim2" {
 # --- Cloudflare DNS records for ACS domain verification ---
 
 # Domain ownership verification TXT record
-resource "cloudflare_record" "acs_domain_verification" {
+resource "cloudflare_dns_record" "acs_domain_verification" {
   for_each = { for d in local.cloudflare_domains : d.name => d }
 
   zone_id = data.cloudflare_zone.domains[each.key].id
@@ -87,7 +89,7 @@ resource "cloudflare_record" "acs_domain_verification" {
 }
 
 # SPF TXT record
-resource "cloudflare_record" "acs_spf" {
+resource "cloudflare_dns_record" "acs_spf" {
   for_each = { for d in local.cloudflare_domains : d.name => d }
 
   zone_id = data.cloudflare_zone.domains[each.key].id
@@ -98,7 +100,7 @@ resource "cloudflare_record" "acs_spf" {
 }
 
 # DKIM CNAME record
-resource "cloudflare_record" "acs_dkim" {
+resource "cloudflare_dns_record" "acs_dkim" {
   for_each = { for d in local.cloudflare_domains : d.name => d }
 
   zone_id = data.cloudflare_zone.domains[each.key].id
@@ -109,7 +111,7 @@ resource "cloudflare_record" "acs_dkim" {
 }
 
 # DKIM2 CNAME record
-resource "cloudflare_record" "acs_dkim2" {
+resource "cloudflare_dns_record" "acs_dkim2" {
   for_each = { for d in local.cloudflare_domains : d.name => d }
 
   zone_id = data.cloudflare_zone.domains[each.key].id
