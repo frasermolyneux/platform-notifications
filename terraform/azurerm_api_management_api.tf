@@ -70,47 +70,25 @@ resource "azurerm_api_management_api_operation_policy" "send_email" {
 <policies>
   <inbound>
     <base />
-    <set-variable name="requestBody" value="@(context.Request.Body.As&lt;string&gt;(preserveContent: true))" />
-    <send-request mode="new" response-variable-name="sbResponse" timeout="10" ignore-error="true">
+    <send-request mode="new" response-variable-name="sbResponse" timeout="10" ignore-error="false">
       <set-url>https://${azurerm_servicebus_namespace.sb.name}.servicebus.windows.net/email_send_queue/messages</set-url>
       <set-method>POST</set-method>
       <set-header name="Content-Type" exists-action="override">
         <value>application/json</value>
       </set-header>
       <authentication-managed-identity resource="https://servicebus.azure.net/" />
-      <set-body>@((string)context.Variables["requestBody"])</set-body>
+      <set-body>@(context.Request.Body.As<string>(preserveContent: true))</set-body>
     </send-request>
-    <choose>
-      <when condition="@(context.Variables.ContainsKey(&quot;sbResponse&quot;) &amp;&amp; context.Variables[&quot;sbResponse&quot;] != null &amp;&amp; ((IResponse)context.Variables[&quot;sbResponse&quot;]).StatusCode == 201)">
-        <return-response>
-          <set-status code="202" reason="Accepted" />
-          <set-header name="Content-Type" exists-action="override">
-            <value>application/json</value>
-          </set-header>
-          <set-body>@{
-            var trackingId = Guid.NewGuid().ToString();
-            return "{\"messageId\":\"" + trackingId + "\",\"status\":\"Queued\"}";
-          }</set-body>
-        </return-response>
-      </when>
-      <otherwise>
-        <trace source="send-email-policy" severity="error">
-          <message>@{
-            if (!context.Variables.ContainsKey("sbResponse") || context.Variables["sbResponse"] == null)
-              return "Service Bus request failed (null response - network/timeout error)";
-            var response = (IResponse)context.Variables["sbResponse"];
-            return "Service Bus send failed. Status: " + response.StatusCode + ", Body: " + response.Body.As&lt;string&gt;();
-          }</message>
-        </trace>
-        <return-response>
-          <set-status code="500" reason="Internal Server Error" />
-          <set-header name="Content-Type" exists-action="override">
-            <value>application/json</value>
-          </set-header>
-          <set-body>{"error":"Failed to queue email for delivery"}</set-body>
-        </return-response>
-      </otherwise>
-    </choose>
+    <return-response>
+      <set-status code="202" reason="Accepted" />
+      <set-header name="Content-Type" exists-action="override">
+        <value>application/json</value>
+      </set-header>
+      <set-body>@{
+        var trackingId = Guid.NewGuid().ToString();
+        return "{\"messageId\":\"" + trackingId + "\",\"status\":\"Queued\"}";
+      }</set-body>
+    </return-response>
   </inbound>
   <backend>
     <base />
@@ -119,7 +97,13 @@ resource "azurerm_api_management_api_operation_policy" "send_email" {
     <base />
   </outbound>
   <on-error>
-    <base />
+    <return-response>
+      <set-status code="500" reason="Internal Server Error" />
+      <set-header name="Content-Type" exists-action="override">
+        <value>application/json</value>
+      </set-header>
+      <set-body>{"error":"Failed to queue email for delivery"}</set-body>
+    </return-response>
   </on-error>
 </policies>
 XML
