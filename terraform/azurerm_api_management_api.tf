@@ -30,7 +30,7 @@ resource "azurerm_api_management_api" "api_v1" {
   protocols           = ["https"]
   service_url         = "https://${azurerm_function_app_flex_consumption.func.name}.azurewebsites.net/api"
 
-  subscription_required = true
+  subscription_required = false
 }
 
 resource "azurerm_api_management_product_api" "api_v1" {

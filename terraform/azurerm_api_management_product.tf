@@ -6,7 +6,7 @@ resource "azurerm_api_management_product" "api_product" {
 
   display_name = "Notifications API"
 
-  subscription_required = true
+  subscription_required = false
   approval_required     = false
   published             = true
 }

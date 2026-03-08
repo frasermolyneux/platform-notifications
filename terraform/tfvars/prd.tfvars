@@ -14,7 +14,15 @@ sending_domains = [
   { name = "craftpledge.org", dns_provider = "azure" }
 ]
 
-api_consumers = []
+api_consumers = [
+  {
+    workload_name = "portal-web"
+    display_name  = "portal-web-prd"
+    roles = [
+      "xtremeidiots.com.email.sender"
+    ]
+  }
+]
 
 platform_monitoring_state = {
   resource_group_name  = "rg-tf-platform-monitoring-prd-uksouth-01"
