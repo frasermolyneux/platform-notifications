@@ -70,31 +70,33 @@ resource "azurerm_api_management_api_operation_policy" "send_email" {
 <policies>
   <inbound>
     <base />
-    <send-request mode="new" response-variable-name="sbResponse" timeout="10" ignore-error="false">
-      <set-url>https://${azurerm_servicebus_namespace.sb.name}.servicebus.windows.net/email_send_queue/messages</set-url>
-      <set-method>POST</set-method>
-      <set-header name="Content-Type" exists-action="override">
-        <value>application/json</value>
-      </set-header>
-      <authentication-managed-identity resource="https://servicebus.azure.net/" />
-      <set-body>@(context.Request.Body.As<string>(preserveContent: true))</set-body>
-    </send-request>
-    <return-response>
-      <set-status code="202" reason="Accepted" />
-      <set-header name="Content-Type" exists-action="override">
-        <value>application/json</value>
-      </set-header>
-      <set-body>@{
-        var trackingId = Guid.NewGuid().ToString();
-        return "{\"messageId\":\"" + trackingId + "\",\"status\":\"Queued\"}";
-      }</set-body>
-    </return-response>
+    <set-backend-service base-url="https://${azurerm_servicebus_namespace.sb.name}.servicebus.windows.net" />
+    <rewrite-uri template="/email_send_queue/messages" />
+    <authentication-managed-identity resource="https://servicebus.azure.net/" />
   </inbound>
   <backend>
     <base />
   </backend>
   <outbound>
-    <base />
+    <choose>
+      <when condition="@(context.Response.StatusCode == 201)">
+        <set-status code="202" reason="Accepted" />
+        <set-header name="Content-Type" exists-action="override">
+          <value>application/json</value>
+        </set-header>
+        <set-body>@{
+          var trackingId = Guid.NewGuid().ToString();
+          return "{\"messageId\":\"" + trackingId + "\",\"status\":\"Queued\"}";
+        }</set-body>
+      </when>
+      <otherwise>
+        <set-status code="500" reason="Internal Server Error" />
+        <set-header name="Content-Type" exists-action="override">
+          <value>application/json</value>
+        </set-header>
+        <set-body>{"error":"Failed to queue email for delivery"}</set-body>
+      </otherwise>
+    </choose>
   </outbound>
   <on-error>
     <return-response>
