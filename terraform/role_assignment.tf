@@ -21,3 +21,9 @@ resource "azurerm_role_assignment" "func_to_acs_contributor" {
   role_definition_name = "Communication and Email Service Owner"
   principal_id         = azurerm_function_app_flex_consumption.func.identity[0].principal_id
 }
+
+resource "azurerm_role_assignment" "apim_to_servicebus_sender" {
+  scope                = azurerm_servicebus_namespace.sb.id
+  role_definition_name = "Azure Service Bus Data Sender"
+  principal_id         = azurerm_api_management.apim.identity[0].principal_id
+}

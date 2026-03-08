@@ -27,7 +27,7 @@ resource "azurerm_function_app_flex_consumption" "func" {
 
     require_authentication = true
     unauthenticated_action = "Return401"
-    excluded_paths         = ["/api/v1/health", "/api/v1/info", "/api/openapi/*"]
+    excluded_paths         = ["/api/v1/health", "/api/v1/info"]
     require_https          = true
     http_route_api_prefix  = "/api"
 
@@ -47,7 +47,6 @@ resource "azurerm_function_app_flex_consumption" "func" {
     "ApplicationInsightsAgent_EXTENSION_VERSION"    = "~3"
     "ServiceBusConnection__fullyQualifiedNamespace" = format("%s.servicebus.windows.net", azurerm_servicebus_namespace.sb.name)
     "ACS__Endpoint"                                 = "https://${azurerm_communication_service.acs.name}.unitedkingdom.communication.azure.com"
-    "StorageAccount__BlobServiceUri"                = "https://${azurerm_storage_account.sa.name}.blob.core.windows.net"
     "APPINSIGHTS_PROFILERFEATURE_VERSION"           = "1.0.0"
     "DiagnosticServices_EXTENSION_VERSION"          = "~3"
   }

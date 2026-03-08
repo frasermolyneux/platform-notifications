@@ -112,10 +112,6 @@ jobs:
           cd terraform
           echo "function_app_name=$(terraform output -raw function_app_name)" >> $GITHUB_OUTPUT
           echo "resource_group_name=$(terraform output -raw resource_group_name)" >> $GITHUB_OUTPUT
-          echo "api_management_name=$(terraform output -raw api_management_name)" >> $GITHUB_OUTPUT
-          echo "api_management_resource_group_name=$(terraform output -raw api_management_resource_group_name)" >> $GITHUB_OUTPUT
-          echo "api_management_product_id=$(terraform output -raw api_management_product_id)" >> $GITHUB_OUTPUT
-          echo "api_version_set_id=$(terraform output -raw api_version_set_id)" >> $GITHUB_OUTPUT
         env:
           ARM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
           ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
@@ -126,10 +122,6 @@ jobs:
     outputs:
       function_app_name: ${{ steps.terraform-output-dev.outputs.function_app_name }}
       resource_group_name: ${{ steps.terraform-output-dev.outputs.resource_group_name }}
-      api_management_name: ${{ steps.terraform-output-dev.outputs.api_management_name }}
-      api_management_resource_group_name: ${{ steps.terraform-output-dev.outputs.api_management_resource_group_name }}
-      api_management_product_id: ${{ steps.terraform-output-dev.outputs.api_management_product_id }}
-      api_version_set_id: ${{ steps.terraform-output-dev.outputs.api_version_set_id }}
 
   deploy-funcapp-dev:
     if: |
@@ -156,42 +148,6 @@ jobs:
           AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
           AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
-  apim-api-import-dev:
-    if: |
-      !failure() && !cancelled() && github.event_name != 'schedule' && (needs.detect-changes.outputs.src == 'true' || needs.terraform-state-check-dev.outputs.state_tainted == 'true')
-    permissions:
-      contents: read
-      id-token: write
-    environment: Development
-    needs:
-      - detect-changes
-      - terraform-state-check-dev
-      - build-and-test
-      - terraform-plan-and-apply-dev
-      - deploy-funcapp-dev
-    runs-on: ubuntu-latest
-    concurrency:
-      group: ${{ github.repository }}-dev
-    steps:
-      - uses: frasermolyneux/actions/apim-api-import@apim-api-import/v1.0
-        with:
-          api-id: "notifications-api-v1"
-          api-display-name: "Notifications API"
-          api-path: "notifications"
-          api-version: "v1"
-          api-version-set-id: ${{ needs.terraform-plan-and-apply-dev.outputs.api_version_set_id }}
-          specification-url: "https://${{ needs.terraform-plan-and-apply-dev.outputs.function_app_name }}.azurewebsites.net/api/openapi/v1.json"
-          service-url: "https://${{ needs.terraform-plan-and-apply-dev.outputs.function_app_name }}.azurewebsites.net/api"
-          apim-name: ${{ needs.terraform-plan-and-apply-dev.outputs.api_management_name }}
-          apim-resource-group: ${{ needs.terraform-plan-and-apply-dev.outputs.api_management_resource_group_name }}
-          product-id: ${{ needs.terraform-plan-and-apply-dev.outputs.api_management_product_id }}
-          subscription-required: "true"
-          info-url: "https://${{ needs.terraform-plan-and-apply-dev.outputs.function_app_name }}.azurewebsites.net/api/v1/info"
-          expected-version: ${{ needs.build-and-test.outputs.build_version }}
-          AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
-          AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
-          AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-
   terraform-plan-and-apply-prd:
     if: |
       !failure() && !cancelled() && (needs.terraform-plan-and-apply-dev.result == 'success' || github.event_name == 'schedule')
@@ -203,7 +159,6 @@ jobs:
       - detect-changes
       - terraform-plan-and-apply-dev
       - deploy-funcapp-dev
-      - apim-api-import-dev
     runs-on: ubuntu-latest
     concurrency:
       group: ${{ github.repository }}-prd
@@ -234,10 +189,6 @@ jobs:
           cd terraform
           echo "function_app_name=$(terraform output -raw function_app_name)" >> $GITHUB_OUTPUT
           echo "resource_group_name=$(terraform output -raw resource_group_name)" >> $GITHUB_OUTPUT
-          echo "api_management_name=$(terraform output -raw api_management_name)" >> $GITHUB_OUTPUT
-          echo "api_management_resource_group_name=$(terraform output -raw api_management_resource_group_name)" >> $GITHUB_OUTPUT
-          echo "api_management_product_id=$(terraform output -raw api_management_product_id)" >> $GITHUB_OUTPUT
-          echo "api_version_set_id=$(terraform output -raw api_version_set_id)" >> $GITHUB_OUTPUT
         env:
           ARM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
           ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
@@ -248,10 +199,6 @@ jobs:
     outputs:
       function_app_name: ${{ steps.terraform-output-prd.outputs.function_app_name }}
       resource_group_name: ${{ steps.terraform-output-prd.outputs.resource_group_name }}
-      api_management_name: ${{ steps.terraform-output-prd.outputs.api_management_name }}
-      api_management_resource_group_name: ${{ steps.terraform-output-prd.outputs.api_management_resource_group_name }}
-      api_management_product_id: ${{ steps.terraform-output-prd.outputs.api_management_product_id }}
-      api_version_set_id: ${{ steps.terraform-output-prd.outputs.api_version_set_id }}
 
   deploy-funcapp-prd:
     if: |
@@ -273,41 +220,6 @@ jobs:
           function-app-artifact-name: "MX.Platform.Notifications.FuncApp"
           function-app-name: ${{ needs.terraform-plan-and-apply-prd.outputs.function_app_name }}
           function-app-resource-group: ${{ needs.terraform-plan-and-apply-prd.outputs.resource_group_name }}
-          AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
-          AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
-          AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-
-  apim-api-import-prd:
-    if: |
-      !failure() && !cancelled() && needs.terraform-plan-and-apply-prd.result == 'success' && needs.detect-changes.outputs.src == 'true'
-    permissions:
-      contents: read
-      id-token: write
-    environment: Production
-    needs:
-      - detect-changes
-      - build-and-test
-      - terraform-plan-and-apply-prd
-      - deploy-funcapp-prd
-    runs-on: ubuntu-latest
-    concurrency:
-      group: ${{ github.repository }}-prd
-    steps:
-      - uses: frasermolyneux/actions/apim-api-import@apim-api-import/v1.0
-        with:
-          api-id: "notifications-api-v1"
-          api-display-name: "Notifications API"
-          api-path: "notifications"
-          api-version: "v1"
-          api-version-set-id: ${{ needs.terraform-plan-and-apply-prd.outputs.api_version_set_id }}
-          specification-url: "https://${{ needs.terraform-plan-and-apply-prd.outputs.function_app_name }}.azurewebsites.net/api/openapi/v1.json"
-          service-url: "https://${{ needs.terraform-plan-and-apply-prd.outputs.function_app_name }}.azurewebsites.net/api"
-          apim-name: ${{ needs.terraform-plan-and-apply-prd.outputs.api_management_name }}
-          apim-resource-group: ${{ needs.terraform-plan-and-apply-prd.outputs.api_management_resource_group_name }}
-          product-id: ${{ needs.terraform-plan-and-apply-prd.outputs.api_management_product_id }}
-          subscription-required: "true"
-          info-url: "https://${{ needs.terraform-plan-and-apply-prd.outputs.function_app_name }}.azurewebsites.net/api/v1/info"
-          expected-version: ${{ needs.build-and-test.outputs.build_version }}
           AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
           AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
           AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}

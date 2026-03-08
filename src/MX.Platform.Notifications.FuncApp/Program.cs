@@ -3,7 +3,6 @@ using System.Text.Json;
 
 using Azure.Communication.Email;
 using Azure.Identity;
-using Azure.Storage.Blobs;
 
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Azure.Functions.Worker;
@@ -41,16 +40,8 @@ var host = new HostBuilder()
             ?? throw new InvalidOperationException("ACS__Endpoint configuration is required");
         services.AddSingleton(new EmailClient(new Uri(acsEndpoint), new DefaultAzureCredential()));
 
-        // Blob storage for claim-check pattern (uses managed identity)
-        var blobServiceUri = configuration["StorageAccount__BlobServiceUri"];
-        if (!string.IsNullOrWhiteSpace(blobServiceUri))
-        {
-            services.AddSingleton(new BlobServiceClient(new Uri(blobServiceUri), new DefaultAzureCredential()));
-        }
-
         // Services
         services.AddSingleton<IEmailSenderService, EmailSenderService>();
-        services.AddSingleton<IClaimCheckService, ClaimCheckService>();
 
         services.AddHealthChecks();
     })
