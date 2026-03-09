@@ -56,9 +56,17 @@ _Pvt_Extensions
 # Terraform
 **/.terraform/
 *.tfstate
-*.tfstate.backup
+*.tfstate.*
 *.tfplan
+*.tfvars.backup
 .terraform.lock.hcl
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
 
 # Copilot
 .github-copilot/
