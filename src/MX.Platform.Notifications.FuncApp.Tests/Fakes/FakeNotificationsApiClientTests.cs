@@ -91,7 +91,8 @@ public class FakeNotificationsApiClientTests
 
         // Assert
         Assert.True(result.IsSuccess);
-        Assert.Equal("e2e-msg-123", result.Result!.Data.MessageId);
+        Assert.NotNull(result.Result?.Data);
+        Assert.Equal("e2e-msg-123", result.Result.Data.MessageId);
         var sentEmail = Assert.Single(_sut.EmailApi.SentEmails);
         Assert.Equal("E2E Test", sentEmail.Subject);
         Assert.Equal("test.org", sentEmail.SenderDomain);

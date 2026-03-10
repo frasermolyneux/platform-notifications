@@ -75,7 +75,8 @@ public class FakeSendEmailApiTests
 
         // Assert
         Assert.True(result.IsSuccess);
-        Assert.Equal("custom-123", result.Result!.Data.MessageId);
+        Assert.NotNull(result.Result?.Data);
+        Assert.Equal("custom-123", result.Result.Data.MessageId);
         Assert.Equal("Queued", result.Result.Data.Status);
     }
 
