@@ -18,6 +18,9 @@ jobs:
     concurrency:
       group: ${{ github.repository }}-dev
 
+    env:
+      TF_VAR_cloudflare_api_token: ${{ secrets.CLOUDFLARE_API_KEY }}
+
     steps:
     - uses: actions/checkout@v6
 
