@@ -24,6 +24,59 @@ Platform Notifications is a centralised .NET 9 email notification service backed
 | `MX.Platform.Notifications.Api.Client.V1` | Typed HTTP client with DI registration via `AddNotificationsApiClient()` |
 | `MX.Platform.Notifications.Api.Client.Testing` | In-memory fakes and DTO factory helpers for consumer test projects |
 
+## Quick Start
+
+### 1. Register the client
+
+```csharp
+// In your Program.cs or Startup.cs
+services.AddNotificationsApiClient(options => options
+    .WithBaseUrl("https://apim-platform-notifications-prd-uksouth.azure-api.net/notifications")
+    .WithEntraIdAuthentication("api://{tenant-id}/platform-notifications-api-prd"));
+```
+
+### 2. Send an email
+
+```csharp
+public class MyService(INotificationsApiClient notifications)
+{
+    public async Task NotifyUser(string email, string name)
+    {
+        var request = new SendEmailRequestDto
+        {
+            SenderDomain = "contoso.com",        // Must hold {domain}.email.sender app role
+            Subject = "Your report is ready",
+            HtmlBody = $"<p>Hi {name}, your report is ready to download.</p>",
+            PlainTextBody = $"Hi {name}, your report is ready to download.",
+            To = [new EmailRecipientDto { EmailAddress = email, DisplayName = name }]
+        };
+
+        var result = await notifications.Email.SendEmail(request);
+
+        if (!result.IsSuccess)
+        {
+            // result.StatusCode and result.Result.Errors contain failure details
+            throw new InvalidOperationException($"Email send failed: {result.StatusCode}");
+        }
+
+        // result.Result.Data.MessageId — unique tracking ID
+        // result.Result.Data.Status — "Queued" (delivery happens asynchronously)
+    }
+}
+```
+
+### 3. Test with fakes
+
+```csharp
+// Replace the real client in your test DI container
+services.AddFakeNotificationsApiClient();
+
+// Or use directly in unit tests
+var fakeClient = new FakeNotificationsApiClient();
+await fakeClient.Email.SendEmail(SendEmailRequestDtoFactory.CreateSendEmailRequest());
+Assert.Single(fakeClient.EmailApi.SentEmails);
+```
+
 ## Contributing
 
 Please read the [contributing](CONTRIBUTING.md) guidance; this is a learning and development project.

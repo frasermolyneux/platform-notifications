@@ -12,6 +12,7 @@
 		<PackageProjectUrl>https://github.com/frasermolyneux/platform-notifications</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/frasermolyneux/platform-notifications</RepositoryUrl>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageTags>notifications;email;testing;fakes;test-helpers</PackageTags>
 	</PropertyGroup>
 
 	<ItemGroup>

@@ -13,6 +13,7 @@
 		<PackageProjectUrl>https://github.com/frasermolyneux/platform-notifications</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/frasermolyneux/platform-notifications</RepositoryUrl>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageTags>notifications;email;api;abstractions;azure-communication-services</PackageTags>
 	</PropertyGroup>
 
 	<ItemGroup>

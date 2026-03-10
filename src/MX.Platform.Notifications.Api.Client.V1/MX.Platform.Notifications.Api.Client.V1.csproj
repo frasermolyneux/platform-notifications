@@ -13,6 +13,7 @@
 		<PackageProjectUrl>https://github.com/frasermolyneux/platform-notifications</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/frasermolyneux/platform-notifications</RepositoryUrl>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageTags>notifications;email;api-client;azure-communication-services;entra-id</PackageTags>
 	</PropertyGroup>
 
 	<ItemGroup>

@@ -11,8 +11,13 @@ using RestSharp;
 
 namespace MX.Platform.Notifications.Api.Client.V1;
 
+/// <summary>
+/// HTTP client implementation for sending emails via the Platform Notifications API.
+/// Registered automatically by <c>AddNotificationsApiClient()</c>.
+/// </summary>
 public class SendEmailApi : BaseApi<NotificationsApiClientOptions>, ISendEmailApi
 {
+    /// <inheritdoc />
     public SendEmailApi(
         ILogger<BaseApi<NotificationsApiClientOptions>> logger,
         IApiTokenProvider? apiTokenProvider,
@@ -22,6 +27,7 @@ public class SendEmailApi : BaseApi<NotificationsApiClientOptions>, ISendEmailAp
     {
     }
 
+    /// <inheritdoc />
     public async Task<IApiResult<SendEmailResponseDto>> SendEmail(SendEmailRequestDto request)
     {
         try
