@@ -8,6 +8,8 @@ resource "azurerm_function_app_flex_consumption" "func" {
 
   service_plan_id = azurerm_service_plan.asp.id
 
+  https_only = true
+
   storage_container_type      = "blobContainer"
   storage_container_endpoint  = "${azurerm_storage_account.sa.primary_blob_endpoint}${azurerm_storage_container.deployments.name}"
   storage_authentication_type = "SystemAssignedIdentity"
