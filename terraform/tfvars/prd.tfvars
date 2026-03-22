@@ -17,7 +17,7 @@ sending_domains = [
 api_consumers = [
   {
     workload_name = "portal-web"
-    display_name  = "portal-web-prd"
+    display_name  = "id-portal-web-prd"
     roles = [
       "xtremeidiots.com.email.sender"
     ]
