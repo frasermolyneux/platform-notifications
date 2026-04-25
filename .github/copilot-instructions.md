@@ -1,5 +1,10 @@
 # Copilot Instructions
 
+> Shared conventions:
+> - [`.github-copilot/.github/instructions/terraform.instructions.md`](../../.github-copilot/.github/instructions/terraform.instructions.md)  standard Terraform layout, providers, remote-state, validation, CI/CD.
+> - [`.github-copilot/.github/instructions/dotnet-nuget-library.instructions.md`](../../.github-copilot/.github/instructions/dotnet-nuget-library.instructions.md)  .NET NuGet library standards.
+> - [`.github-copilot/.github/instructions/dotnet-api-client-libraries.instructions.md`](../../.github-copilot/.github/instructions/dotnet-api-client-libraries.instructions.md)  typed API client patterns (three-package layout, fluent DI builder, `ApiResult<T>` envelope, authentication options, testing-package conventions).
+
 ## Architecture
 - .NET 9 solution in `src/MX.Platform.Notifications.sln` with a Function App (`MX.Platform.Notifications.FuncApp`) plus abstractions, a typed API client, and a testing package.
 - Three NuGet packages are published: `MX.Platform.Notifications.Abstractions.V1` (interfaces/DTOs), `MX.Platform.Notifications.Api.Client.V1` (typed HTTP client), and `MX.Platform.Notifications.Api.Client.Testing` (in-memory fakes and DTO factories for consumer test projects).
