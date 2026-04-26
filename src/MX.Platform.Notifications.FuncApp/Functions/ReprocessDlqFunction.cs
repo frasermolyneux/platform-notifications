@@ -7,11 +7,15 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
+using MX.Observability.ApplicationInsights.Auditing;
+using MX.Observability.ApplicationInsights.Auditing.Models;
+
 namespace MX.Platform.Notifications.FuncApp.Functions;
 
 public class ReprocessDlqFunction(
     ILogger<ReprocessDlqFunction> logger,
-    IConfiguration configuration)
+    IConfiguration configuration,
+    IAuditLogger auditLogger)
 {
     private const string ReprocessCountProperty = "dlq-reprocess-count";
     private const int MaxReprocessAttempts = 3;
@@ -63,6 +67,13 @@ public class ReprocessDlqFunction(
         logger.LogInformation(
             "DLQ reprocessing complete for '{QueueName}'. Reprocessed: {Reprocessed}, Skipped (poison): {Skipped}",
             queueName, reprocessed, skippedPoisonPill);
+
+        auditLogger.LogAudit(AuditEvent.SystemAction("DlqReprocessed", AuditAction.Execute)
+            .WithTarget(queueName!, "ServiceBusQueue")
+            .WithSource(nameof(ReprocessDlqFunction))
+            .WithProperty("Reprocessed", reprocessed.ToString())
+            .WithProperty("SkippedPoisonPill", skippedPoisonPill.ToString())
+            .Build());
 
         var response = req.CreateResponse(HttpStatusCode.OK);
         await response.WriteStringAsync($"Reprocessed: {reprocessed}, Skipped (poison-pill): {skippedPoisonPill}").ConfigureAwait(false);

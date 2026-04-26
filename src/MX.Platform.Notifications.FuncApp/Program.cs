@@ -12,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 
 using MX.Platform.Notifications.FuncApp;
 using MX.Platform.Notifications.FuncApp.Services;
+using MX.Observability.ApplicationInsights.WorkerService;
 
 var host = new HostBuilder()
     .ConfigureAppConfiguration(builder =>
@@ -34,6 +35,7 @@ var host = new HostBuilder()
         services.AddSingleton<ITelemetryInitializer, TelemetryInitializer>();
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
+        services.AddObservability();
 
         // ACS Email client using managed identity
         var acsEndpoint = configuration["ACS__Endpoint"]

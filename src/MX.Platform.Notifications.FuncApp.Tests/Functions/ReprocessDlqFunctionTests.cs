@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 
 using Moq;
 
+using MX.Observability.ApplicationInsights.Auditing;
 using MX.Platform.Notifications.FuncApp.Functions;
 
 namespace MX.Platform.Notifications.FuncApp.Tests.Functions;
@@ -15,13 +16,15 @@ public class ReprocessDlqFunctionTests
 {
     private readonly Mock<ILogger<ReprocessDlqFunction>> _loggerMock;
     private readonly Mock<IConfiguration> _configurationMock;
+    private readonly Mock<IAuditLogger> _auditLoggerMock;
     private readonly ReprocessDlqFunction _sut;
 
     public ReprocessDlqFunctionTests()
     {
         _loggerMock = new Mock<ILogger<ReprocessDlqFunction>>();
         _configurationMock = new Mock<IConfiguration>();
-        _sut = new ReprocessDlqFunction(_loggerMock.Object, _configurationMock.Object);
+        _auditLoggerMock = new Mock<IAuditLogger>();
+        _sut = new ReprocessDlqFunction(_loggerMock.Object, _configurationMock.Object, _auditLoggerMock.Object);
     }
 
     [Fact]

@@ -1,10 +1,10 @@
 using Azure;
 using Azure.Communication.Email;
 
-using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.Extensions.Logging;
 
+using MX.Observability.ApplicationInsights.Auditing;
+using MX.Observability.ApplicationInsights.Auditing.Models;
 using MX.Platform.Notifications.Abstractions.V1.Models;
 
 using Polly;
@@ -19,17 +19,17 @@ public class EmailSenderService : IEmailSenderService
 {
     private readonly EmailClient _emailClient;
     private readonly ILogger<EmailSenderService> _logger;
-    private readonly TelemetryClient _telemetryClient;
+    private readonly IAuditLogger _auditLogger;
     private readonly ResiliencePipeline _retryPipeline;
 
     public EmailSenderService(
         EmailClient emailClient,
         ILogger<EmailSenderService> logger,
-        TelemetryClient telemetryClient)
+        IAuditLogger auditLogger)
     {
         _emailClient = emailClient;
         _logger = logger;
-        _telemetryClient = telemetryClient;
+        _auditLogger = auditLogger;
 
         _retryPipeline = new ResiliencePipelineBuilder()
             .AddRetry(new RetryStrategyOptions
@@ -85,16 +85,6 @@ public class EmailSenderService : IEmailSenderService
 
         var emailMessage = new EmailMessage(senderAddress, recipients, emailContent);
 
-        var telemetry = new EventTelemetry("EmailSend")
-        {
-            Properties =
-            {
-                ["SenderDomain"] = request.SenderDomain,
-                ["Subject"] = request.Subject,
-                ["RecipientCount"] = request.To.Count.ToString()
-            }
-        };
-
         var result = await _retryPipeline.ExecuteAsync(async ct =>
         {
             var emailSendOperation = await _emailClient.SendAsync(
@@ -105,15 +95,19 @@ public class EmailSenderService : IEmailSenderService
             return emailSendOperation;
         }, cancellationToken).ConfigureAwait(false);
 
-        telemetry.Properties["MessageId"] = result.Id;
-
         if (!result.HasValue)
         {
             throw new InvalidOperationException($"Email send operation completed but returned no result. OperationId: {result.Id}");
         }
 
-        telemetry.Properties["Status"] = result.Value.Status.ToString();
-        _telemetryClient.TrackEvent(telemetry);
+        _auditLogger.LogAudit(AuditEvent.SystemAction("EmailDispatched", AuditAction.Create)
+            .WithTarget(result.Id, "Email")
+            .WithSource(nameof(EmailSenderService))
+            .WithProperty("SenderDomain", request.SenderDomain)
+            .WithProperty("Subject", request.Subject)
+            .WithProperty("RecipientCount", request.To.Count.ToString())
+            .WithProperty("Status", result.Value.Status.ToString())
+            .Build());
 
         _logger.LogInformation(
             "Email sent successfully. MessageId: {MessageId}, Status: {Status}",

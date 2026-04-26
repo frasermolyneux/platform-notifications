@@ -1,14 +1,11 @@
 using Azure;
 using Azure.Communication.Email;
 
-using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.Channel;
-using Microsoft.ApplicationInsights.DataContracts;
-using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Extensions.Logging;
 
 using Moq;
 
+using MX.Observability.ApplicationInsights.Auditing;
 using MX.Platform.Notifications.Abstractions.V1.Models;
 using MX.Platform.Notifications.Api.Client.Testing.Factories;
 using MX.Platform.Notifications.FuncApp.Services;
@@ -19,24 +16,15 @@ public class EmailSenderServiceTests
 {
     private readonly Mock<EmailClient> _emailClientMock;
     private readonly Mock<ILogger<EmailSenderService>> _loggerMock;
-    private readonly TelemetryClient _telemetryClient;
-    private readonly List<ITelemetry> _telemetryItems;
+    private readonly Mock<IAuditLogger> _auditLoggerMock;
     private readonly EmailSenderService _sut;
 
     public EmailSenderServiceTests()
     {
         _emailClientMock = new Mock<EmailClient>();
         _loggerMock = new Mock<ILogger<EmailSenderService>>();
-        _telemetryItems = [];
-        var mockChannel = new Mock<ITelemetryChannel>();
-        mockChannel.Setup(c => c.Send(It.IsAny<ITelemetry>()))
-            .Callback<ITelemetry>(t => _telemetryItems.Add(t));
-        var telemetryConfig = new TelemetryConfiguration
-        {
-            TelemetryChannel = mockChannel.Object
-        };
-        _telemetryClient = new TelemetryClient(telemetryConfig);
-        _sut = new EmailSenderService(_emailClientMock.Object, _loggerMock.Object, _telemetryClient);
+        _auditLoggerMock = new Mock<IAuditLogger>();
+        _sut = new EmailSenderService(_emailClientMock.Object, _loggerMock.Object, _auditLoggerMock.Object);
     }
 
     [Fact]
@@ -46,7 +34,7 @@ public class EmailSenderServiceTests
         var exception = Record.Exception(() => new EmailSenderService(
             _emailClientMock.Object,
             _loggerMock.Object,
-            _telemetryClient));
+            _auditLoggerMock.Object));
 
         // Assert
         Assert.Null(exception);
@@ -188,7 +176,7 @@ public class EmailSenderServiceTests
     }
 
     [Fact]
-    public async Task SendEmailAsync_TracksTelemetryEvent_WithCorrectProperties()
+    public async Task SendEmailAsync_LogsAuditEvent_WithCorrectProperties()
     {
         // Arrange
         var request = SendEmailRequestDtoFactory.CreateSendEmailRequest(
@@ -196,18 +184,21 @@ public class EmailSenderServiceTests
             subject: "Telemetry Test");
         SetupEmailClientSuccess("telemetry-msg", EmailSendStatus.Succeeded);
 
+        MX.Observability.ApplicationInsights.Auditing.Models.AuditEvent? captured = null;
+        _auditLoggerMock.Setup(a => a.LogAudit(It.IsAny<MX.Observability.ApplicationInsights.Auditing.Models.AuditEvent>()))
+            .Callback<MX.Observability.ApplicationInsights.Auditing.Models.AuditEvent>(e => captured = e);
+
         // Act
         await _sut.SendEmailAsync(request);
-        _telemetryClient.Flush();
 
         // Assert
-        var eventTelemetry = Assert.Single(_telemetryItems.OfType<EventTelemetry>());
-        Assert.Equal("EmailSend", eventTelemetry.Name);
-        Assert.Equal("telemetry-test.com", eventTelemetry.Properties["SenderDomain"]);
-        Assert.Equal("Telemetry Test", eventTelemetry.Properties["Subject"]);
-        Assert.Equal("1", eventTelemetry.Properties["RecipientCount"]);
-        Assert.Equal("telemetry-msg", eventTelemetry.Properties["MessageId"]);
-        Assert.Equal("Succeeded", eventTelemetry.Properties["Status"]);
+        Assert.NotNull(captured);
+        Assert.Equal("EmailDispatched", captured!.EventName);
+        Assert.Equal("telemetry-msg", captured.TargetId);
+        Assert.Equal("telemetry-test.com", captured.Properties["SenderDomain"]);
+        Assert.Equal("Telemetry Test", captured.Properties["Subject"]);
+        Assert.Equal("1", captured.Properties["RecipientCount"]);
+        Assert.Equal("Succeeded", captured.Properties["Status"]);
     }
 
     [Fact]
