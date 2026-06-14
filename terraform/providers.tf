@@ -4,7 +4,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 4.76.0"
+      version = "~> 4.77.0"
     }
     azuread = {
       source  = "hashicorp/azuread"
@@ -12,7 +12,7 @@ terraform {
     }
     cloudflare = {
       source  = "cloudflare/cloudflare"
-      version = "~> 5.19.0"
+      version = "~> 5.20.0"
     }
   }
 
