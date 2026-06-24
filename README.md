@@ -1,16 +1,19 @@
 # Platform Notifications
-
-[![Code Quality](https://github.com/frasermolyneux/platform-notifications/actions/workflows/codequality.yml/badge.svg)](https://github.com/frasermolyneux/platform-notifications/actions/workflows/codequality.yml)
 [![Build and Test](https://github.com/frasermolyneux/platform-notifications/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/frasermolyneux/platform-notifications/actions/workflows/build-and-test.yml)
+[![Code Quality](https://github.com/frasermolyneux/platform-notifications/actions/workflows/codequality.yml/badge.svg)](https://github.com/frasermolyneux/platform-notifications/actions/workflows/codequality.yml)
+[![Copilot Setup Steps](https://github.com/frasermolyneux/platform-notifications/actions/workflows/copilot-setup-steps.yml/badge.svg)](https://github.com/frasermolyneux/platform-notifications/actions/workflows/copilot-setup-steps.yml)
+[![Dependabot Auto-Merge](https://github.com/frasermolyneux/platform-notifications/actions/workflows/dependabot-automerge.yml/badge.svg)](https://github.com/frasermolyneux/platform-notifications/actions/workflows/dependabot-automerge.yml)
 [![Deploy Dev](https://github.com/frasermolyneux/platform-notifications/actions/workflows/deploy-dev.yml/badge.svg)](https://github.com/frasermolyneux/platform-notifications/actions/workflows/deploy-dev.yml)
 [![Deploy Prd](https://github.com/frasermolyneux/platform-notifications/actions/workflows/deploy-prd.yml/badge.svg)](https://github.com/frasermolyneux/platform-notifications/actions/workflows/deploy-prd.yml)
+[![Destroy Development](https://github.com/frasermolyneux/platform-notifications/actions/workflows/destroy-development.yml/badge.svg)](https://github.com/frasermolyneux/platform-notifications/actions/workflows/destroy-development.yml)
+[![Destroy Environment](https://github.com/frasermolyneux/platform-notifications/actions/workflows/destroy-environment.yml/badge.svg)](https://github.com/frasermolyneux/platform-notifications/actions/workflows/destroy-environment.yml)
+[![PR Verify](https://github.com/frasermolyneux/platform-notifications/actions/workflows/pr-verify.yml/badge.svg)](https://github.com/frasermolyneux/platform-notifications/actions/workflows/pr-verify.yml)
+[![Release - Publish NuGet](https://github.com/frasermolyneux/platform-notifications/actions/workflows/release-publish-nuget.yml/badge.svg)](https://github.com/frasermolyneux/platform-notifications/actions/workflows/release-publish-nuget.yml)
+[![Release - Version and Tag](https://github.com/frasermolyneux/platform-notifications/actions/workflows/release-version-and-tag.yml/badge.svg)](https://github.com/frasermolyneux/platform-notifications/actions/workflows/release-version-and-tag.yml)
 
 ## Documentation
 
-* [Architecture Overview](/docs/architecture.md) - High level architecture and component design
-* [API Versioning and APIM](/docs/api-versioning-and-apim.md) - API versioning strategy and APIM routing
 * [Domain Setup](/docs/domain-setup.md) - Guide for adding new sending domains
-* [Development Workflows](/docs/development-workflows.md) - Branch strategy, CI/CD triggers, and deployment flows
 
 ## Overview
 
@@ -18,11 +21,11 @@ Platform Notifications is a centralised .NET 9 email notification service backed
 
 ## NuGet Packages
 
-| Package | Description |
-|---|---|
-| `MX.Platform.Notifications.Abstractions.V1` | Interfaces and DTOs for the Notifications API |
-| `MX.Platform.Notifications.Api.Client.V1` | Typed HTTP client with DI registration via `AddNotificationsApiClient()` |
-| `MX.Platform.Notifications.Api.Client.Testing` | In-memory fakes and DTO factory helpers for consumer test projects |
+| Package                                                                                                                       | Latest                                                                                                                                                                    | Description                                                            |
+| ----------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| [`MX.Platform.Notifications.Abstractions.V1`](https://www.nuget.org/packages/MX.Platform.Notifications.Abstractions.V1)       | [![NuGet](https://img.shields.io/nuget/v/MX.Platform.Notifications.Abstractions.V1.svg)](https://www.nuget.org/packages/MX.Platform.Notifications.Abstractions.V1/)       | Interfaces and DTOs for the Notifications API                          |
+| [`MX.Platform.Notifications.Api.Client.V1`](https://www.nuget.org/packages/MX.Platform.Notifications.Api.Client.V1)           | [![NuGet](https://img.shields.io/nuget/v/MX.Platform.Notifications.Api.Client.V1.svg)](https://www.nuget.org/packages/MX.Platform.Notifications.Api.Client.V1/)           | Typed HTTP client with DI registration via AddNotificationsApiClient() |
+| [`MX.Platform.Notifications.Api.Client.Testing`](https://www.nuget.org/packages/MX.Platform.Notifications.Api.Client.Testing) | [![NuGet](https://img.shields.io/nuget/v/MX.Platform.Notifications.Api.Client.Testing.svg)](https://www.nuget.org/packages/MX.Platform.Notifications.Api.Client.Testing/) | In-memory fakes and DTO factory helpers for consumer test projects     |
 
 ## Quick Start
 
