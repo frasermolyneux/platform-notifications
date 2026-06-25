@@ -184,16 +184,16 @@ public class EmailSenderServiceTests
             subject: "Telemetry Test");
         SetupEmailClientSuccess("telemetry-msg", EmailSendStatus.Succeeded);
 
-        MX.Observability.ApplicationInsights.Auditing.Models.AuditEvent? captured = null;
-        _auditLoggerMock.Setup(a => a.LogAudit(It.IsAny<MX.Observability.ApplicationInsights.Auditing.Models.AuditEvent>()))
-            .Callback<MX.Observability.ApplicationInsights.Auditing.Models.AuditEvent>(e => captured = e);
+        Observability.ApplicationInsights.Auditing.Models.AuditEvent? captured = null;
+        _auditLoggerMock.Setup(a => a.LogAudit(It.IsAny<Observability.ApplicationInsights.Auditing.Models.AuditEvent>()))
+            .Callback<Observability.ApplicationInsights.Auditing.Models.AuditEvent>(e => captured = e);
 
         // Act
         await _sut.SendEmailAsync(request);
 
         // Assert
         Assert.NotNull(captured);
-        Assert.Equal("EmailDispatched", captured!.EventName);
+        Assert.Equal("EmailDispatched", captured.EventName);
         Assert.Equal("telemetry-msg", captured.TargetId);
         Assert.Equal("telemetry-test.com", captured.Properties["SenderDomain"]);
         Assert.Equal("Telemetry Test", captured.Properties["Subject"]);

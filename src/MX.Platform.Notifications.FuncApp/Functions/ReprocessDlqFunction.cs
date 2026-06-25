@@ -69,7 +69,7 @@ public class ReprocessDlqFunction(
             queueName, reprocessed, skippedPoisonPill);
 
         auditLogger.LogAudit(AuditEvent.SystemAction("DlqReprocessed", AuditAction.Execute)
-            .WithTarget(queueName!, "ServiceBusQueue")
+            .WithTarget(queueName, "ServiceBusQueue")
             .WithSource(nameof(ReprocessDlqFunction))
             .WithProperty("Reprocessed", reprocessed.ToString())
             .WithProperty("SkippedPoisonPill", skippedPoisonPill.ToString())
