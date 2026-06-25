@@ -217,7 +217,9 @@ public class EmailSenderServiceTests
             {
                 callCount++;
                 if (callCount < 3)
+                {
                     throw new RequestFailedException("Transient error");
+                }
 
                 return EmailSendOperationHelper.CreateSuccessOperation("retry-msg", EmailSendStatus.Succeeded);
             });

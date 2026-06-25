@@ -45,7 +45,7 @@ dotnet_diagnostic.IDE0305.severity = suggestion
 dotnet_diagnostic.IDE0028.severity = suggestion
 dotnet_diagnostic.IDE0390.severity = suggestion
 dotnet_diagnostic.CA1852.severity = suggestion
-dotnet_diagnostic.IDE0011.severity = none
+dotnet_diagnostic.IDE0011.severity = warning
 dotnet_diagnostic.IDE0046.severity = none
 
 # Defer non-functional analyzer cleanups in existing code.
