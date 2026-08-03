@@ -16,10 +16,11 @@ public class ServiceCollectionExtensionsTests
             .WithBaseUrl("https://notifications.example.test")
             .WithApiKeyAuthentication("test-key"));
 
-        using var provider = services.BuildServiceProvider();
+        using var provider = services.BuildServiceProvider(validateScopes: true);
+        using var scope = provider.CreateScope();
 
-        var sendEmailApi = provider.GetService<ISendEmailApi>();
-        var client = provider.GetService<INotificationsApiClient>();
+        var sendEmailApi = scope.ServiceProvider.GetService<ISendEmailApi>();
+        var client = scope.ServiceProvider.GetService<INotificationsApiClient>();
 
         Assert.NotNull(sendEmailApi);
         Assert.NotNull(client);
