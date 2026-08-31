@@ -13,5 +13,5 @@
   records, Application Insights, and alerts. It uses dev/prd backends plus monitoring and
   connectivity remote state.
 - Follow `docs/domain-setup.md` for sending-domain or DNS ownership changes.
-- Build and test through `src/MX.Platform.Notifications.sln`; use targeted tests where possible.
+- Build and test through `src/MX.Platform.Notifications.slnx`; use targeted tests where possible.
 - Never commit credentials or generated `bin/`, `obj/`, `.terraform/`, or state files.

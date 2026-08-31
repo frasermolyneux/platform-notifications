@@ -22,10 +22,10 @@ Management (APIM), Service Bus, identity, DNS records, and monitoring resources.
 ## Useful commands
 
 ```pwsh
-dotnet build src/MX.Platform.Notifications.sln
-dotnet test src/MX.Platform.Notifications.sln --filter "FullyQualifiedName!~IntegrationTests"
+dotnet build src/MX.Platform.Notifications.slnx
+dotnet test src/MX.Platform.Notifications.slnx --filter "FullyQualifiedName!~IntegrationTests"
 dotnet test src/MX.Platform.Notifications.FuncApp.Tests/MX.Platform.Notifications.FuncApp.Tests.csproj --filter "FullyQualifiedName~EmailProcessorFunctionTests"
-dotnet format src/MX.Platform.Notifications.sln --verify-no-changes
+dotnet format src/MX.Platform.Notifications.slnx --verify-no-changes
 
 terraform -chdir=terraform fmt -check -recursive
 terraform -chdir=terraform init -backend-config=backends/dev.backend.hcl
