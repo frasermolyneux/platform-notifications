@@ -1,23 +1,17 @@
-# Copilot Instructions
+# Copilot instructions
 
-> Shared conventions:
-> - [`.github-copilot/.github/instructions/terraform.instructions.md`](../../.github-copilot/.github/instructions/terraform.instructions.md)  standard Terraform layout, providers, remote-state, validation, CI/CD.
-> - [`.github-copilot/.github/instructions/dotnet-nuget-library.instructions.md`](../../.github-copilot/.github/instructions/dotnet-nuget-library.instructions.md)  .NET NuGet library standards.
-> - [`.github-copilot/.github/instructions/dotnet-api-client-libraries.instructions.md`](../../.github-copilot/.github/instructions/dotnet-api-client-libraries.instructions.md)  typed API client patterns (three-package layout, fluent DI builder, `ApiResult<T>` envelope, authentication options, testing-package conventions).
-
-## Architecture
-- .NET 9 solution in `src/MX.Platform.Notifications.sln` with a Function App (`MX.Platform.Notifications.FuncApp`) plus abstractions, a typed API client, and a testing package.
-- Three NuGet packages are published: `MX.Platform.Notifications.Abstractions.V1` (interfaces/DTOs), `MX.Platform.Notifications.Api.Client.V1` (typed HTTP client), and `MX.Platform.Notifications.Api.Client.Testing` (in-memory fakes and DTO factories for consumer test projects).
-- Function App uses Azure Communication Services to send emails with domain-granular permissions via Entra ID app roles.
-- HTTP triggers handle email submission and DLQ reprocessing; Service Bus trigger handles queue processing with Polly retries.
-- API security is Entra ID via Easy Auth v2; domain-specific app roles (e.g. `xtremeidiots.com.email.sender`) control which callers can send from which domains.
-- Build versioning uses Nerdbank.GitVersioning (`version.json` at repo root).
-
-## Workflows
-- Build: `dotnet build src/MX.Platform.Notifications.sln`
-- Test: `dotnet test src/MX.Platform.Notifications.sln`
-- Test framework: xUnit + Moq + native assertions.
-
-## Infrastructure
-- Terraform under `terraform/` provisions ACS, Function App (Flex Consumption), Service Bus (Basic), APIM (Consumption), Entra ID app registration, DNS records (Azure DNS + Cloudflare), Application Insights, and monitoring alerts.
-- GitHub Actions workflows cover build/test, codequality, PR verify, deploy-dev/prd, destroy-environment, dependabot-automerge, and NuGet publishing.
+- This repository is the source of truth for the notification abstractions, typed API client,
+  consumer testing package, email-processing Function App, and their Terraform.
+- Use the SDK pinned in `global.json`; the Function App targets .NET 9 and the published libraries
+  target .NET 9 and .NET 10.
+- Keep the abstractions, client, testing, and Function App separation. Treat published DTOs,
+  interfaces, package IDs, DI APIs, and serialized queue messages as consumer contracts.
+- APIM validates domain-specific Entra ID app roles and queues email requests directly to
+  `email_send_queue`. The Function App processes the queue through ACS; preserve the asynchronous
+  `202 Queued`, retry, DLQ, and reprocessing semantics.
+- Terraform owns ACS, APIM, Service Bus, Entra application roles, Function App, DNS verification
+  records, Application Insights, and alerts. It uses dev/prd backends plus monitoring and
+  connectivity remote state.
+- Follow `docs/domain-setup.md` for sending-domain or DNS ownership changes.
+- Build and test through `src/MX.Platform.Notifications.sln`; use targeted tests where possible.
+- Never commit credentials or generated `bin/`, `obj/`, `.terraform/`, or state files.
