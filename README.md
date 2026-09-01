@@ -17,7 +17,7 @@
 
 ## Overview
 
-Platform Notifications is a centralised .NET 9 email notification service backed by Azure Communication Services that provides domain-granular sending across six custom domains (xtremeidiots.com, molyneux.io, molyneux.me, molyneux.dev, geo-location.net, craftpledge.org). The API is fronted by an APIM Consumption instance with Entra ID app role authorization, and messages flow through a Service Bus queue for resilient delivery with Polly retries and dead-letter handling. Infrastructure is managed by Terraform and deployed via GitHub Actions workflows above.
+Platform Notifications is a centralised .NET 9/.NET 10 email notification service backed by Azure Communication Services that provides domain-granular sending across six custom domains (xtremeidiots.com, molyneux.io, molyneux.me, molyneux.dev, geo-location.net, craftpledge.org). The API is fronted by an APIM Consumption instance with Entra ID app role authorization, and messages flow through a Service Bus queue for resilient delivery with Polly retries and dead-letter handling. Infrastructure is managed by Terraform and deployed via GitHub Actions workflows above.
 
 ## NuGet Packages
 

@@ -1,0 +1,22 @@
+<Solution>
+  <Configurations>
+    <BuildType Name="Debug" />
+    <BuildType Name="Release" />
+    <Platform Name="Any CPU" />
+  </Configurations>
+  <Folder Name="/abstractions/">
+    <Project Path="MX.Platform.Notifications.Abstractions.V1/MX.Platform.Notifications.Abstractions.V1.csproj" />
+  </Folder>
+  <Folder Name="/apps/">
+    <Project Path="MX.Platform.Notifications.FuncApp/MX.Platform.Notifications.FuncApp.csproj" />
+  </Folder>
+  <Folder Name="/libraries/">
+    <Project Path="MX.Platform.Notifications.Api.Client.V1/MX.Platform.Notifications.Api.Client.V1.csproj" />
+  </Folder>
+  <Folder Name="/testing/">
+    <Project Path="MX.Platform.Notifications.Api.Client.Testing/MX.Platform.Notifications.Api.Client.Testing.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="MX.Platform.Notifications.FuncApp.Tests/MX.Platform.Notifications.FuncApp.Tests.csproj" />
+  </Folder>
+</Solution>
