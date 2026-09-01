@@ -2,7 +2,7 @@
 
 - This repository is the source of truth for the notification abstractions, typed API client,
   consumer testing package, email-processing Function App, and their Terraform.
-- Use the SDK pinned in `global.json`; the Function App targets .NET 9 and the published libraries
+- Use the SDK pinned in `global.json`; the Function App targets .NET 10 and the published libraries
   target .NET 9 and .NET 10.
 - Keep the abstractions, client, testing, and Function App separation. Treat published DTOs,
   interfaces, package IDs, DI APIs, and serialized queue messages as consumer contracts.
