@@ -14,6 +14,7 @@
 ## Documentation
 
 * [Domain Setup](/docs/domain-setup.md) - Guide for adding new sending domains
+* [Function App Telemetry](/docs/telemetry.md) - Host and isolated worker telemetry behavior
 
 ## Overview
 

@@ -31,4 +31,10 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="..\MX.Platform.Notifications.FuncApp\host.json"
+          Link="Configuration\host.json"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>
