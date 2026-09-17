@@ -4,7 +4,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 5.0.1"
+      version = "~> 5.4.0"
     }
     azuread = {
       source  = "hashicorp/azuread"
@@ -12,7 +12,7 @@ terraform {
     }
     cloudflare = {
       source  = "cloudflare/cloudflare"
-      version = "~> 5.23.0"
+      version = "~> 5.24.0"
     }
   }
 
@@ -51,5 +51,5 @@ provider "azurerm" {
 provider "azuread" {}
 
 provider "cloudflare" {
-  api_token = var.cloudflare_api_token
+  api_token = length(local.cloudflare_domains) > 0 ? var.cloudflare_api_token : null
 }
