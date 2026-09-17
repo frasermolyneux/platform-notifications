@@ -51,5 +51,5 @@ provider "azurerm" {
 provider "azuread" {}
 
 provider "cloudflare" {
-  api_token = var.cloudflare_api_token
+  api_token = length(local.cloudflare_domains) > 0 ? var.cloudflare_api_token : null
 }

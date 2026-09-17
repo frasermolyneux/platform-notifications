@@ -30,9 +30,13 @@ updates:
       time: "03:30"
       timezone: "Etc/UTC"
     groups:
-      all-updates:
+      azure-providers:
         patterns:
-          - "*"
+          - "hashicorp/azuread"
+          - "hashicorp/azurerm"
+      cloudflare-provider:
+        patterns:
+          - "cloudflare/cloudflare"
 
   - package-ecosystem: "github-actions"
     assignees: ["frasermolyneux"]
