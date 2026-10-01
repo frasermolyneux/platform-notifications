@@ -64,8 +64,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - id: funcapp-ci
-        uses: frasermolyneux/actions/dotnet-web-ci@dotnet-web-ci/v2
+        uses: frasermolyneux/actions/dotnet-web-ci@dotnet-web-ci/v2.1
         with:
+          test-reporting: "true"
           dotnet-project: "MX.Platform.Notifications.FuncApp"
           dotnet-version: |
             9.0.x
