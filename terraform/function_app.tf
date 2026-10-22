@@ -21,7 +21,9 @@ resource "azurerm_function_app_flex_consumption" "func" {
     type = "SystemAssigned"
   }
 
-  site_config {}
+  site_config {
+    application_insights_connection_string = azurerm_application_insights.ai.connection_string
+  }
 
   auth_settings_v2 {
     auth_enabled    = true
@@ -45,7 +47,6 @@ resource "azurerm_function_app_flex_consumption" "func" {
   }
 
   app_settings = {
-    "APPLICATIONINSIGHTS_CONNECTION_STRING"         = azurerm_application_insights.ai.connection_string
     "ApplicationInsightsAgent_EXTENSION_VERSION"    = "~3"
     "ServiceBusConnection__fullyQualifiedNamespace" = format("%s.servicebus.windows.net", azurerm_servicebus_namespace.sb.name)
     "ACS__Endpoint"                                 = "https://${azurerm_communication_service.acs.name}.unitedkingdom.communication.azure.com"
