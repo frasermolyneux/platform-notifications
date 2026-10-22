@@ -18,6 +18,16 @@ Azure DNS treats all TXT records at the same name as **one record set**. The `az
 
 Cloudflare's API creates individual DNS records, so there is no record-set conflict. The domain-proof and SPF records remain as separate `cloudflare_dns_record` resources.
 
+However, a domain must publish **exactly one SPF policy**, regardless of DNS provider. This repository owns that policy for ACS sending domains; do not add another SPF record in platform-connectivity.
+
+### Domains with other sending providers
+
+By default, the SPF policy comes from ACS. When a domain also sends through other providers, set its optional `spf_record` in `sending_domains` to the complete combined policy. The override must retain the authorization required by ACS, not just the additional provider.
+
+For example, `xtremeidiots.com` uses `v=spf1 include:spf.protection.outlook.com include:spf.mandrillapp.com -all` to authorize Microsoft 365/ACS and Mandrill, but not Google. Domains without an override continue to use the ACS-generated policy.
+
+If platform-connectivity already publishes a separate Cloudflare SPF record, deploy the combined policy here first, then deploy removal of only the obsolete SPF record there. These are distinct DNS records, so no Terraform state transfer is required. After both deployments, verify that every authoritative nameserver returns exactly one SPF policy. Preserve unrelated verification TXT and DKIM records.
+
 ## Adding a new sending domain
 
 ### 1. Add the domain to `sending_domains`
@@ -33,7 +43,7 @@ sending_domains = [
 
 ### 2. Check for existing apex TXT records (Azure DNS only)
 
-If the DNS zone already has TXT records at the apex (`@`) — for example a Microsoft 365 `MS=` verification token or an existing SPF record — those values must be added to `local.additional_apex_txt_records` in `terraform/locals.tf`. Without this, the import will **remove** those existing values.
+If the DNS zone already has non-SPF TXT records at the apex (`@`) — for example a Microsoft 365 `MS=` verification token — those values must be added to `local.additional_apex_txt_records` in `terraform/locals.tf`. Without this, the import will **remove** those existing values. Merge any existing SPF authorizations into the domain's `spf_record` instead of preserving a second SPF policy in `additional_apex_txt_records`.
 
 ```hcl
 additional_apex_txt_records = {
