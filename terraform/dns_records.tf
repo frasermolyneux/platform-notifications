@@ -28,21 +28,20 @@ data "cloudflare_zone" "domains" {
 #   - Remove those values from platform-connectivity to avoid state conflicts.
 #   - The import block below will automatically adopt the existing record set.
 
-# Import existing apex TXT record sets into state. Azure DNS zones may already
-# have apex TXT records (e.g. from platform-connectivity or manual creation).
-# After a successful apply, these import blocks become no-ops.
+# Adopt the existing set only after connectivity's non-destructive release.
+# The other configured Azure domains have no existing apex TXT set.
 import {
-  for_each = { for d in local.azure_dns_domains : d.name => d }
-  to       = azurerm_dns_txt_record.acs_apex_txt[each.key]
-  id       = "/subscriptions/${var.dns_subscription_id}/resourceGroups/${var.dns_resource_group_name}/providers/Microsoft.Network/dnsZones/${each.key}/TXT/${each.key}"
+  for_each = { for d in local.azure_dns_domains : d.name => d if d.name == "molyneux.io" }
+  to       = azurerm_dns_txt_record.acs_apex[each.key]
+  id       = "/subscriptions/${var.dns_subscription_id}/resourceGroups/${var.dns_resource_group_name}/providers/Microsoft.Network/dnsZones/${each.key}/TXT/@"
 }
 
-resource "azurerm_dns_txt_record" "acs_apex_txt" {
+resource "azurerm_dns_txt_record" "acs_apex" {
   provider = azurerm.dns
 
   for_each = { for d in local.azure_dns_domains : d.name => d }
 
-  name                = azurerm_email_communication_service_domain.custom[each.key].verification_records[0].domain[0].name
+  name                = "@"
   zone_name           = each.key
   resource_group_name = var.dns_resource_group_name
   ttl                 = azurerm_email_communication_service_domain.custom[each.key].verification_records[0].domain[0].ttl

@@ -20,6 +20,26 @@
 
 Platform Notifications is a centralised .NET 9/.NET 10 email notification service backed by Azure Communication Services that provides domain-granular sending across six custom domains (xtremeidiots.com, molyneux.io, molyneux.me, molyneux.dev, geo-location.net, craftpledge.org). The API is fronted by an APIM Consumption instance with Entra ID app role authorization, and messages flow through a Service Bus queue for resilient delivery with Polly retries and dead-letter handling. Infrastructure is managed by Terraform and deployed via GitHub Actions workflows above.
 
+## Function host storage and deployment checks
+
+Both deployment and host storage use the Function's system-assigned identity; shared-key access
+remains disabled. Host storage is configured separately through
+`AzureWebJobsStorage__accountName` and `AzureWebJobsStorage__credential`.
+The AzureRM Flex resource also injects a reserved `AzureWebJobsStorage` connection string with an empty key,
+which takes precedence over the identity settings. Before package upload, the managed workflow
+validates the identity configuration and removes only that conflicting setting without logging
+connection strings. After upload it requires the actual host's `/api/v1/health` endpoint to return 200
+within five minutes. A successful package upload alone is not a healthy deployment.
+
+Terraform changes build and deploy the application too, with build success required before
+development provisioning and verified development health required before production promotion.
+Scheduled runs follow the same development-health gate rather than bypassing development.
+The `radar` sender username is registered only on the existing `molyneux.io` custom domain;
+domain authorization alone does not make an arbitrary sender address valid in ACS.
+The ACS client uses the service's actual provider-reported hostname, not a constructed
+data-location suffix.
+The public API's `202 Queued` remains queue acceptance, not proof of recipient delivery.
+
 ## NuGet Packages
 
 | Package                                                                                                                       | Latest                                                                                                                                                                    | Description                                                            |
