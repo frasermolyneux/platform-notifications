@@ -25,7 +25,7 @@ Platform Notifications is a centralised .NET 9/.NET 10 email notification servic
 Both deployment and host storage use the Function's system-assigned identity; shared-key access
 remains disabled. Host storage is configured separately through
 `AzureWebJobsStorage__accountName` and `AzureWebJobsStorage__credential`.
-AzureRM 5.9 also injects a reserved `AzureWebJobsStorage` connection string with an empty key,
+The AzureRM Flex resource also injects a reserved `AzureWebJobsStorage` connection string with an empty key,
 which takes precedence over the identity settings. Before package upload, the managed workflow
 validates the identity configuration and removes only that conflicting setting without logging
 connection strings. After upload it requires the actual host's `/api/v1/health` endpoint to return 200
