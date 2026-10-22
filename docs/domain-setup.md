@@ -8,11 +8,13 @@ DNS **zones** are created by [platform-connectivity](https://github.com/frasermo
 
 1. **Verification values are computed** — the domain-proof TXT, SPF, DKIM, and DKIM2 values are outputs of `azurerm_email_communication_service_domain`. They only exist after the ACS domain resource is created, which happens in this Terraform apply.
 2. **No circular dependencies** — platform-connectivity does not reference this repository's state. Adding a reverse dependency would create a cycle, since this repository already consumes platform-connectivity's remote state for DNS zone information.
-3. **Single-apply workflow** — keeping the ACS domain and its DNS records in the same Terraform means a single `terraform apply` creates the domain and provisions all verification records, with no manual copy-paste step.
+3. **Verified activation** — Terraform provisions the records, initiates Azure's asynchronous Domain, SPF, DKIM and DKIM2 checks, then reads their actual states. Only `Verified` results permit linking custom domains to the communication service. Azure-managed domains are also explicitly linked. DNS creation or HTTP `202` acceptance alone is not verification or email delivery.
 
 ### Azure DNS apex constraint
 
-Azure DNS treats all TXT records at the same name as **one record set**. The `azurerm_dns_txt_record` resource manages that entire set — you cannot split it across two Terraform configurations. Both the ACS domain-proof and SPF values resolve to the zone apex (`@`), so they must share a single resource (`azurerm_dns_txt_record.acs_apex_txt`).
+Azure DNS treats all TXT records at the same name as **one record set**. The `azurerm_dns_txt_record` resource manages that entire set — you cannot split it across two Terraform configurations. Both the ACS domain-proof and SPF values resolve to the zone apex (`@`), so they must share a single resource (`azurerm_dns_txt_record.acs_apex`). Azure expects the relative record name `@`, not the full domain name; passing `example.com` would publish at `example.com.example.com`.
+
+The corrected resource uses a new address so the existing `molyneux.io/@` set can actually be imported. The five previous, incorrectly named ACS TXT sets are retired; they are not the live apex sets. No MX, DKIM, DMARC or unrelated TXT records are retired.
 
 ### Cloudflare difference
 
@@ -54,19 +56,19 @@ additional_apex_txt_records = {
 
 Domains that have no pre-existing apex TXT values can be omitted from the map.
 
-### 3. Remove conflicting records from platform-connectivity
+### 3. Release conflicting state ownership without deleting DNS
 
-If the DNS zone's JSON file in `platform-connectivity/terraform/zones/` has a `txt_records` entry for the apex (`@`), empty it to avoid two Terraform states managing the same record set:
+If `platform-connectivity` owns the existing apex set, use a reviewed, declarative ownership transfer. Removing its JSON entry alone would **delete live DNS** and must not be used as a release.
 
-```json
-"txt_records": []
-```
+First move the specific instance to a separately named resource and deploy that revision with a production plan proving zero record changes. In a second reviewed revision, remove that isolated resource and only the apex JSON entry, using a `removed` block with `lifecycle { destroy = false }`. Preserve every other TXT entry. Deploy the release and verify the live apex set and SPF are unchanged before importing here.
 
-**Deploy platform-connectivity first** so that it releases the record from its state before this repository imports it.
+The current handoff isolates `molyneux.io/@` in connectivity's `azurerm_dns_txt_record.notification_apex[0]`. The other four configured Azure zones were checked and have no pre-existing apex TXT set or connectivity apex ownership.
 
 ### 4. Apply
 
-When this repository is applied, the `import` block in `dns_records.tf` automatically adopts the existing apex TXT record set into state. No manual `terraform import` is needed.
+The `import` block adopts the existing `molyneux.io` `/TXT/@` set after its ownership release. Other configured Azure apex sets are created, not imported. For any future domain with an existing set, add it to the import selection only after completing the same ownership and value-preservation checks. No local `terraform import`, state removal or targeted apply is used.
+
+Verification uses the Azure management API through the AzAPI provider because AzureRM does not initiate DNS verification. Requests are serialized per domain, awaited through Azure's long-running operation, and followed by a fail-closed read of all four required statuses. An absent or failed verification blocks association and deployment; do not mark it healthy or resend queued email to compensate. Preserve existing SPF overrides, including the combined Microsoft 365/Mandrill policy for `xtremeidiots.com`.
 
 ### 5. Grant consumer access
 

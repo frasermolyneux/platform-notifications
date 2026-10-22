@@ -14,6 +14,10 @@ terraform {
       source  = "cloudflare/cloudflare"
       version = "~> 5.28.0"
     }
+    azapi = {
+      source  = "Azure/azapi"
+      version = "~> 2.13.0"
+    }
   }
 
   backend "azurerm" {}
@@ -49,6 +53,10 @@ provider "azurerm" {
 }
 
 provider "azuread" {}
+
+provider "azapi" {
+  subscription_id = var.subscription_id
+}
 
 provider "cloudflare" {
   api_token = length(local.cloudflare_domains) > 0 ? var.cloudflare_api_token : null
