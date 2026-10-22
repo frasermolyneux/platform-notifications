@@ -21,6 +21,13 @@ api_consumers = [
     roles = [
       "xtremeidiots.com.email.sender"
     ]
+  },
+  {
+    workload_name = "platform-radar"
+    display_name  = "Radar (prd)"
+    roles = [
+      "molyneux.io.email.sender"
+    ]
   }
 ]
 
