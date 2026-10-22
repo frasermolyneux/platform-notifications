@@ -4,9 +4,10 @@ set -euo pipefail
 : "${FUNCTION_APP_NAME:?FUNCTION_APP_NAME is required}"
 : "${FUNCTION_APP_RESOURCE_GROUP:?FUNCTION_APP_RESOURCE_GROUP is required}"
 
-hostname=$(az functionapp show \
+hostname=$(az resource show \
   --name "$FUNCTION_APP_NAME" --resource-group "$FUNCTION_APP_RESOURCE_GROUP" \
-  --query defaultHostName --output tsv --only-show-errors)
+  --resource-type Microsoft.Web/sites --api-version 2024-11-01 \
+  --query properties.defaultHostName --output tsv --only-show-errors)
 if [[ ! "$hostname" =~ ^([a-zA-Z0-9-]+\.)+azurewebsites\.net$ ]]; then
   echo "::error::Invalid Function App hostname."
   exit 1

@@ -20,7 +20,10 @@ az() {
     *accountName*) echo "${TEST_ACCOUNT:-teststorage}" ;;
     *credential*) echo "${TEST_CREDENTIAL:-managedidentity}" ;;
     *"length("*) echo "${TEST_LEGACY:-1}" ;;
-    *"functionapp show"*) echo "$FUNCTION_APP_HOSTNAME" ;;
+    *"resource show"*"properties.defaultHostName"*)
+      echo metadata >> "$TEST_LOG"
+      echo "$FUNCTION_APP_HOSTNAME"
+      ;;
     *) echo "Unexpected Azure operation in test." >&2; return 99 ;;
   esac
 }
@@ -59,6 +62,7 @@ forbid_call() {
 
 run_case legacy-setting 0
 require_call delete
+require_call metadata
 require_call probe
 run_case already-reconciled 0 TEST_LEGACY=0
 forbid_call delete
@@ -73,5 +77,11 @@ run_case failed-reconciliation 42 TEST_DELETE_EXIT=42
 require_call delete
 forbid_call probe
 run_case unhealthy-host 1 TEST_HTTP_STATUS=503
+require_call probe
+run_case missing-arm-hostname 1 FUNCTION_APP_HOSTNAME=
+require_call metadata
+forbid_call probe
+run_case regional-arm-hostname 0 FUNCTION_APP_HOSTNAME=test-function-unique.swedencentral-01.azurewebsites.net
+require_call metadata
 require_call probe
 echo "Function host reconciliation and health tests passed."
