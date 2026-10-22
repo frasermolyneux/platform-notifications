@@ -31,6 +31,9 @@ jobs:
             9.0.x
             10.0.x
           src-folder: "src"
+      - name: Test Function host reconciliation
+        shell: bash
+        run: bash .github/scripts/test-function-host.sh .github/scripts/verify-function-host.sh
 
     outputs:
       test_report: ${{ steps.funcapp-ci.outputs.test-report }}
@@ -114,6 +117,7 @@ jobs:
     concurrency:
       group: ${{ github.repository }}-dev
     steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       - uses: frasermolyneux/actions/deploy-function-app@deploy-function-app/v1.2
         with:
           function-app-artifact-name: "MX.Platform.Notifications.FuncApp"
@@ -122,6 +126,12 @@ jobs:
           AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
           AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
           AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - name: Verify identity-based Function host
+        shell: bash
+        run: bash .github/scripts/verify-function-host.sh
+        env:
+          FUNCTION_APP_NAME: ${{ needs.terraform-plan-and-apply-dev.outputs.function_app_name }}
+          FUNCTION_APP_RESOURCE_GROUP: ${{ needs.terraform-plan-and-apply-dev.outputs.resource_group_name }}
 
   terraform-plan-prd:
     permissions:
