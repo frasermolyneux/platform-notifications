@@ -32,8 +32,17 @@ variable "sending_domains" {
   type = list(object({
     name         = string
     dns_provider = string
+    spf_record   = optional(string)
   }))
   default = []
+
+  validation {
+    condition = alltrue([
+      for domain in var.sending_domains :
+      domain.spf_record == null ? true : can(regex("^v=spf1 [^\\r\\n]+$", domain.spf_record))
+    ])
+    error_message = "Each spf_record override must be a single-line policy starting with 'v=spf1 '."
+  }
 }
 
 variable "api_consumers" {
