@@ -38,7 +38,7 @@ var host = new HostBuilder()
         services.AddObservability();
 
         // ACS Email client using managed identity
-        var acsEndpoint = configuration["ACS__Endpoint"]
+        var acsEndpoint = configuration["ACS:Endpoint"]
             ?? throw new InvalidOperationException("ACS__Endpoint configuration is required");
         services.AddSingleton(new EmailClient(new Uri(acsEndpoint), new DefaultAzureCredential()));
 
