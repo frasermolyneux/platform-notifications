@@ -52,7 +52,7 @@ resource "azurerm_dns_txt_record" "acs_apex_txt" {
   }
 
   record {
-    value = azurerm_email_communication_service_domain.custom[each.key].verification_records[0].spf[0].value
+    value = each.value.spf_record != null ? each.value.spf_record : azurerm_email_communication_service_domain.custom[each.key].verification_records[0].spf[0].value
   }
 
   # Preserve pre-existing apex TXT values (e.g. Microsoft 365 domain
@@ -118,7 +118,7 @@ resource "cloudflare_dns_record" "acs_spf" {
   zone_id = data.cloudflare_zone.domains[each.key].id
   name    = azurerm_email_communication_service_domain.custom[each.key].verification_records[0].spf[0].name
   type    = "TXT"
-  content = azurerm_email_communication_service_domain.custom[each.key].verification_records[0].spf[0].value
+  content = each.value.spf_record != null ? each.value.spf_record : azurerm_email_communication_service_domain.custom[each.key].verification_records[0].spf[0].value
   ttl     = 3600
 }
 

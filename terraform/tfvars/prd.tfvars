@@ -6,7 +6,11 @@ subscription_id     = "903b6685-c12a-4703-ac54-7ec1ff15ca43"
 dns_subscription_id = "db34f572-8b71-40d6-8f99-f29a27612144"
 
 sending_domains = [
-  { name = "xtremeidiots.com", dns_provider = "cloudflare" },
+  {
+    name         = "xtremeidiots.com"
+    dns_provider = "cloudflare"
+    spf_record   = "v=spf1 include:spf.protection.outlook.com include:spf.mandrillapp.com -all"
+  },
   { name = "molyneux.io", dns_provider = "azure" },
   { name = "molyneux.me", dns_provider = "azure" },
   { name = "molyneux.dev", dns_provider = "azure" },
