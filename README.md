@@ -33,6 +33,11 @@ within five minutes. A successful package upload alone is not a healthy deployme
 
 Terraform changes build and deploy the application too, with build success required before
 development provisioning and verified development health required before production promotion.
+Scheduled runs follow the same development-health gate rather than bypassing development.
+The `radar` sender username is registered only on the existing `molyneux.io` custom domain;
+domain authorization alone does not make an arbitrary sender address valid in ACS.
+The ACS client uses the service's actual provider-reported hostname, not a constructed
+data-location suffix.
 The public API's `202 Queued` remains queue acceptance, not proof of recipient delivery.
 
 ## NuGet Packages

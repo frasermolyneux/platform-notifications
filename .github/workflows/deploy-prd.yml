@@ -30,7 +30,6 @@ jobs:
             terraform:terraform/**
 
   terraform-state-check-dev:
-    if: github.event_name != 'schedule'
     permissions:
       contents: read
       id-token: write
@@ -78,7 +77,7 @@ jobs:
 
   terraform-plan-and-apply-dev:
     if: |
-      github.event_name != 'schedule' && !failure() && !cancelled() &&
+      !failure() && !cancelled() &&
       (needs.build-and-test.result == 'success' || needs.build-and-test.result == 'skipped')
     permissions:
       contents: read
@@ -133,7 +132,7 @@ jobs:
 
   deploy-funcapp-dev:
     if: |
-      !failure() && !cancelled() && github.event_name != 'schedule' && (needs.detect-changes.outputs.src == 'true' || needs.detect-changes.outputs.terraform == 'true' || needs.terraform-state-check-dev.outputs.state_tainted == 'true')
+      !failure() && !cancelled() && (needs.detect-changes.outputs.src == 'true' || needs.detect-changes.outputs.terraform == 'true' || needs.terraform-state-check-dev.outputs.state_tainted == 'true')
     permissions:
       contents: read
       id-token: write
@@ -165,7 +164,9 @@ jobs:
 
   terraform-plan-and-apply-prd:
     if: |
-      !failure() && !cancelled() && (needs.terraform-plan-and-apply-dev.result == 'success' || github.event_name == 'schedule')
+      !failure() && !cancelled() && needs.terraform-plan-and-apply-dev.result == 'success' &&
+      (needs.deploy-funcapp-dev.result == 'success' ||
+      (needs.detect-changes.outputs.src != 'true' && needs.detect-changes.outputs.terraform != 'true'))
     permissions:
       contents: read
       id-token: write

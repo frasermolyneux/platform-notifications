@@ -51,7 +51,7 @@ resource "azurerm_function_app_flex_consumption" "func" {
     "AzureWebJobsStorage__credential"               = "managedidentity"
     "ApplicationInsightsAgent_EXTENSION_VERSION"    = "~3"
     "ServiceBusConnection__fullyQualifiedNamespace" = format("%s.servicebus.windows.net", azurerm_servicebus_namespace.sb.name)
-    "ACS__Endpoint"                                 = "https://${azurerm_communication_service.acs.name}.unitedkingdom.communication.azure.com"
+    "ACS__Endpoint"                                 = "https://${azurerm_communication_service.acs.hostname}"
     "APPINSIGHTS_PROFILERFEATURE_VERSION"           = "1.0.0"
     "DiagnosticServices_EXTENSION_VERSION"          = "~3"
   }

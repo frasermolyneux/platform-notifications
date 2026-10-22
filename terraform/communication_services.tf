@@ -38,4 +38,16 @@ resource "azurerm_email_communication_service_domain" "custom" {
       # Verification records are managed outside Terraform after initial creation
     ]
   }
+
+}
+
+resource "azurerm_email_communication_service_domain_sender_username" "radar" {
+  for_each = {
+    for name, domain in azurerm_email_communication_service_domain.custom :
+    name => domain if name == "molyneux.io"
+  }
+
+  name                    = "radar"
+  email_service_domain_id = each.value.id
+  display_name            = "Radar"
 }
