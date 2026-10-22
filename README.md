@@ -26,9 +26,9 @@ Both deployment and host storage use the Function's system-assigned identity; sh
 remains disabled. Host storage is configured separately through
 `AzureWebJobsStorage__accountName` and `AzureWebJobsStorage__credential`.
 AzureRM 5.9 also injects a reserved `AzureWebJobsStorage` connection string with an empty key,
-which takes precedence over the identity settings. After deployment, the managed workflow
+which takes precedence over the identity settings. Before package upload, the managed workflow
 validates the identity configuration and removes only that conflicting setting without logging
-connection strings. It then requires the actual host's `/api/v1/health` endpoint to return 200
+connection strings. After upload it requires the actual host's `/api/v1/health` endpoint to return 200
 within five minutes. A successful package upload alone is not a healthy deployment.
 
 Terraform changes build and deploy the application too, with build success required before
