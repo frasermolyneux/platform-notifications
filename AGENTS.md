@@ -28,7 +28,7 @@ dotnet test src/MX.Platform.Notifications.FuncApp.Tests/MX.Platform.Notification
 dotnet format src/MX.Platform.Notifications.slnx --verify-no-changes
 
 terraform -chdir=terraform fmt -check -recursive
-terraform -chdir=terraform init -backend-config=backends/dev.backend.hcl
+terraform -chdir=terraform init -lockfile=readonly -backend-config=backends/dev.backend.hcl
 terraform -chdir=terraform validate
 terraform -chdir=terraform plan -var-file=tfvars/dev.tfvars
 ```

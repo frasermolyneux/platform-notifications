@@ -15,3 +15,7 @@
 - Follow `docs/domain-setup.md` for sending-domain or DNS ownership changes.
 - Build and test through `src/MX.Platform.Notifications.slnx`; use targeted tests where possible.
 - Never commit credentials or generated `bin/`, `obj/`, `.terraform/`, or state files.
+
+## Terraform toolchain
+
+Commit each root's `.terraform-version` and `.terraform.lock.hcl`. Select the exact root CLI pin before invoking Terraform; normal initialization uses `-lockfile=readonly`. Regenerate provider selections only in a reviewed dependency-update PR; never commit state, plans, or `.terraform/`.
