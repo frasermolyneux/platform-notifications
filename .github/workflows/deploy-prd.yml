@@ -21,6 +21,7 @@ jobs:
     outputs:
       src: ${{ steps.changes.outputs.src }}
       terraform: ${{ steps.changes.outputs.terraform }}
+      workload: ${{ steps.changes.outputs.workload }}
     steps:
       - id: changes
         uses: frasermolyneux/actions/detect-changes@detect-changes/v1.0
@@ -28,8 +29,12 @@ jobs:
           filters: |
             src:src/**
             terraform:terraform/**
-
+            workload:src/**,terraform/**
   terraform-state-check-dev:
+    needs: [detect-changes]
+    if: |
+      (success()) &&
+      (github.event_name != 'push' || needs.detect-changes.outputs.workload == 'true')
     permissions:
       contents: read
       id-token: write
@@ -56,7 +61,8 @@ jobs:
       - detect-changes
       - terraform-state-check-dev
     if: |
-      !failure() && !cancelled() && (needs.detect-changes.outputs.src == 'true' || needs.detect-changes.outputs.terraform == 'true' || needs.terraform-state-check-dev.outputs.state_tainted == 'true')
+      (!failure() && !cancelled() && (needs.detect-changes.outputs.src == 'true' || needs.detect-changes.outputs.terraform == 'true' || needs.terraform-state-check-dev.outputs.state_tainted == 'true')) &&
+      (github.event_name != 'push' || needs.detect-changes.outputs.workload == 'true')
     permissions:
       contents: read
       id-token: write
@@ -77,8 +83,9 @@ jobs:
 
   terraform-plan-and-apply-dev:
     if: |
-      !failure() && !cancelled() &&
-      (needs.build-and-test.result == 'success' || needs.build-and-test.result == 'skipped')
+      (!failure() && !cancelled() &&
+      (needs.build-and-test.result == 'success' || needs.build-and-test.result == 'skipped')) &&
+      (github.event_name != 'push' || needs.detect-changes.outputs.workload == 'true')
     permissions:
       contents: read
       id-token: write
@@ -132,7 +139,8 @@ jobs:
 
   deploy-funcapp-dev:
     if: |
-      !failure() && !cancelled() && (needs.detect-changes.outputs.src == 'true' || needs.detect-changes.outputs.terraform == 'true' || needs.terraform-state-check-dev.outputs.state_tainted == 'true')
+      (!failure() && !cancelled() && (needs.detect-changes.outputs.src == 'true' || needs.detect-changes.outputs.terraform == 'true' || needs.terraform-state-check-dev.outputs.state_tainted == 'true')) &&
+      (github.event_name != 'push' || needs.detect-changes.outputs.workload == 'true')
     permissions:
       contents: read
       id-token: write
@@ -175,9 +183,10 @@ jobs:
 
   terraform-plan-and-apply-prd:
     if: |
-      !failure() && !cancelled() && needs.terraform-plan-and-apply-dev.result == 'success' &&
+      (!failure() && !cancelled() && needs.terraform-plan-and-apply-dev.result == 'success' &&
       (needs.deploy-funcapp-dev.result == 'success' ||
-      (needs.detect-changes.outputs.src != 'true' && needs.detect-changes.outputs.terraform != 'true'))
+      (needs.detect-changes.outputs.src != 'true' && needs.detect-changes.outputs.terraform != 'true'))) &&
+      (github.event_name != 'push' || needs.detect-changes.outputs.workload == 'true')
     permissions:
       contents: read
       id-token: write
@@ -231,7 +240,8 @@ jobs:
 
   deploy-funcapp-prd:
     if: |
-      !failure() && !cancelled() && needs.terraform-plan-and-apply-prd.result == 'success' && (needs.detect-changes.outputs.src == 'true' || needs.detect-changes.outputs.terraform == 'true')
+      (!failure() && !cancelled() && needs.terraform-plan-and-apply-prd.result == 'success' && (needs.detect-changes.outputs.src == 'true' || needs.detect-changes.outputs.terraform == 'true')) &&
+      (github.event_name != 'push' || needs.detect-changes.outputs.workload == 'true')
     permissions:
       contents: read
       id-token: write
