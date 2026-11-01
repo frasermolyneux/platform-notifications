@@ -18,13 +18,13 @@
 
 	<ItemGroup>
 		<PackageReference Include="Azure.Identity" Version="1.21.0" />
-		<PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="10.0.13" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.13" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.13" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.13" />
-		<PackageReference Include="Microsoft.Extensions.Options" Version="10.0.13" />
-		<PackageReference Include="MX.Api.Client" Version="2.3.81" />
-		<PackageReference Include="MX.Api.Abstractions" Version="2.3.81" />
+		<PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="10.0.14" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.14" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.14" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.14" />
+		<PackageReference Include="Microsoft.Extensions.Options" Version="10.0.14" />
+		<PackageReference Include="MX.Api.Client" Version="2.3.89" />
+		<PackageReference Include="MX.Api.Abstractions" Version="2.3.89" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
 		<PackageReference Include="RestSharp" Version="114.1.0" />
 	</ItemGroup>
