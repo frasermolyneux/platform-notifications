@@ -26,7 +26,7 @@ jobs:
       terraform: ${{ steps.changes.outputs.terraform }}
     steps:
       - id: changes
-        uses: frasermolyneux/actions/detect-changes@detect-changes/v1.0
+        uses: frasermolyneux/actions/detect-changes@8e7ca58b7821e01192ee4f23756c55e4ee057496 # detect-changes/v1.0.4
         with:
           filters: |
             src:src/**
@@ -45,7 +45,7 @@ jobs:
       state_tainted: ${{ steps.state-check.outputs.state_tainted }}
     steps:
       - id: state-check
-        uses: frasermolyneux/actions/terraform-state-check@terraform-state-check/v2.0.1
+        uses: frasermolyneux/actions/terraform-state-check@027d7e31bb32b734090aaed01b36d74f1d658b61 # terraform-state-check/v2.0.2
         with:
           terraform-folder: "terraform"
           terraform-var-file: "tfvars/dev.tfvars"
@@ -66,7 +66,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - id: funcapp-ci
-        uses: frasermolyneux/actions/dotnet-web-ci@dotnet-web-ci/v2.1
+        uses: frasermolyneux/actions/dotnet-web-ci@a6271c58ed8e8f3b6fbdb738ac7566863fdc38c8 # dotnet-web-ci/v3.0.1
         with:
           test-reporting: "true"
           dotnet-project: "MX.Platform.Notifications.FuncApp"
@@ -97,7 +97,7 @@ jobs:
       TF_VAR_cloudflare_api_token: ${{ secrets.CLOUDFLARE_API_KEY }}
     steps:
       - if: needs.detect-changes.outputs.terraform == 'true' || needs.terraform-state-check-dev.outputs.state_tainted == 'true'
-        uses: frasermolyneux/actions/terraform-plan-and-apply@terraform-plan-and-apply/v2.0.1
+        uses: frasermolyneux/actions/terraform-plan-and-apply@027d7e31bb32b734090aaed01b36d74f1d658b61 # terraform-plan-and-apply/v5.0.0
         with:
           terraform-folder: "terraform"
           terraform-var-file: "tfvars/dev.tfvars"
@@ -107,7 +107,7 @@ jobs:
           AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
       - if: needs.detect-changes.outputs.terraform != 'true' && needs.terraform-state-check-dev.outputs.state_tainted != 'true'
-        uses: frasermolyneux/actions/terraform-output@terraform-output/v2.0.1
+        uses: frasermolyneux/actions/terraform-output@027d7e31bb32b734090aaed01b36d74f1d658b61 # terraform-output/v2.0.2
         with:
           terraform-folder: "terraform"
           terraform-var-file: "tfvars/dev.tfvars"
@@ -161,7 +161,7 @@ jobs:
         env:
           FUNCTION_APP_NAME: ${{ needs.terraform-plan-and-apply-dev.outputs.function_app_name }}
           FUNCTION_APP_RESOURCE_GROUP: ${{ needs.terraform-plan-and-apply-dev.outputs.resource_group_name }}
-      - uses: frasermolyneux/actions/deploy-function-app@deploy-function-app/v1.2
+      - uses: frasermolyneux/actions/deploy-function-app@027d7e31bb32b734090aaed01b36d74f1d658b61 # deploy-function-app/v1.2.7
         with:
           function-app-artifact-name: "MX.Platform.Notifications.FuncApp"
           function-app-name: ${{ needs.terraform-plan-and-apply-dev.outputs.function_app_name }}
@@ -196,7 +196,7 @@ jobs:
       TF_VAR_cloudflare_api_token: ${{ secrets.CLOUDFLARE_API_KEY }}
     steps:
       - if: needs.detect-changes.outputs.terraform == 'true'
-        uses: frasermolyneux/actions/terraform-plan-and-apply@terraform-plan-and-apply/v2.0.1
+        uses: frasermolyneux/actions/terraform-plan-and-apply@027d7e31bb32b734090aaed01b36d74f1d658b61 # terraform-plan-and-apply/v5.0.0
         with:
           terraform-folder: "terraform"
           terraform-var-file: "tfvars/prd.tfvars"
@@ -206,7 +206,7 @@ jobs:
           AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
       - if: needs.detect-changes.outputs.terraform != 'true'
-        uses: frasermolyneux/actions/terraform-output@terraform-output/v2.0.1
+        uses: frasermolyneux/actions/terraform-output@027d7e31bb32b734090aaed01b36d74f1d658b61 # terraform-output/v2.0.2
         with:
           terraform-folder: "terraform"
           terraform-var-file: "tfvars/prd.tfvars"
@@ -259,7 +259,7 @@ jobs:
         env:
           FUNCTION_APP_NAME: ${{ needs.terraform-plan-and-apply-prd.outputs.function_app_name }}
           FUNCTION_APP_RESOURCE_GROUP: ${{ needs.terraform-plan-and-apply-prd.outputs.resource_group_name }}
-      - uses: frasermolyneux/actions/deploy-function-app@deploy-function-app/v1.2
+      - uses: frasermolyneux/actions/deploy-function-app@027d7e31bb32b734090aaed01b36d74f1d658b61 # deploy-function-app/v1.2.7
         with:
           function-app-artifact-name: "MX.Platform.Notifications.FuncApp"
           function-app-name: ${{ needs.terraform-plan-and-apply-prd.outputs.function_app_name }}
