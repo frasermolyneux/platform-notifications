@@ -37,6 +37,11 @@ variable "sending_domains" {
   default = []
 
   validation {
+    condition     = alltrue([for domain in var.sending_domains : domain.dns_provider == "cloudflare"])
+    error_message = "Sending domains must use Cloudflare DNS."
+  }
+
+  validation {
     condition = alltrue([
       for domain in var.sending_domains :
       domain.spf_record == null ? true : can(regex("^v=spf1 [^\\r\\n]+$", domain.spf_record))

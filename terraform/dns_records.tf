@@ -7,94 +7,63 @@ data "cloudflare_zone" "domains" {
   }
 }
 
-# --- Azure DNS records for ACS domain verification ---
-#
-# DNS zones are created by platform-connectivity, but the ACS verification
-# records are managed HERE because:
-#
-#   1. The verification values (domain proof, SPF, DKIM) are computed outputs
-#      of azurerm_email_communication_service_domain — they only exist after
-#      the ACS domain resource is created in this Terraform apply.
-#   2. platform-connectivity has no remote state reference to this repo and
-#      adding one would create a circular dependency.
-#   3. Cloudflare's API creates individual records, but Azure DNS manages all
-#      TXT records at the same name as a single record set. Both the domain
-#      verification and SPF values resolve to the zone apex (@), so they MUST
-#      be in one azurerm_dns_txt_record resource.
-#
-# When adding a new Azure DNS domain to sending_domains:
-#   - If the zone already has apex TXT records, add their values to
-#     local.additional_apex_txt_records so they are preserved on import.
-#   - Remove those values from platform-connectivity to avoid state conflicts.
-#   - The import block below will automatically adopt the existing record set.
-
-# Adopt the existing set only after connectivity's non-destructive release.
-# The other configured Azure domains have no existing apex TXT set.
-import {
-  for_each = { for d in local.azure_dns_domains : d.name => d if d.name == "molyneux.io" }
-  to       = azurerm_dns_txt_record.acs_apex[each.key]
-  id       = "/subscriptions/${var.dns_subscription_id}/resourceGroups/${var.dns_resource_group_name}/providers/Microsoft.Network/dnsZones/${each.key}/TXT/@"
+# Release the old Azure DNS records without deleting the fallback zones' data.
+removed {
+  from = azurerm_dns_txt_record.acs_apex
+  lifecycle {
+    destroy = false
+  }
 }
 
-resource "azurerm_dns_txt_record" "acs_apex" {
-  provider = azurerm.dns
-
-  for_each = { for d in local.azure_dns_domains : d.name => d }
-
-  name                = "@"
-  zone_name           = each.key
-  resource_group_name = var.dns_resource_group_name
-  ttl                 = azurerm_email_communication_service_domain.custom[each.key].verification_records[0].domain[0].ttl
-
-  record {
-    value = azurerm_email_communication_service_domain.custom[each.key].verification_records[0].domain[0].value
+removed {
+  from = azurerm_dns_cname_record.acs_dkim
+  lifecycle {
+    destroy = false
   }
+}
 
-  record {
-    value = each.value.spf_record != null ? each.value.spf_record : azurerm_email_communication_service_domain.custom[each.key].verification_records[0].spf[0].value
+removed {
+  from = azurerm_dns_cname_record.acs_dkim2
+  lifecycle {
+    destroy = false
   }
+}
 
-  # Preserve pre-existing apex TXT values (e.g. Microsoft 365 domain
-  # verification) that were migrated from platform-connectivity.
-  # See local.additional_apex_txt_records to add entries for new domains.
-  dynamic "record" {
-    for_each = lookup(local.additional_apex_txt_records, each.key, [])
-    content {
-      value = record.value
+locals {
+  existing_cloudflare_acs_txt_records = {
+    "molyneux.io" = {
+      zone   = "5648ffe2dfbc8459485fece70e7059fe"
+      domain = "a9055731a9de72588ab743371c36b137"
+      spf    = "fe69fb1cc436822a5455a72f62e4bdb9"
+    }
+    "molyneux.dev" = {
+      zone   = "8e36be30976964ea3ac57eb4882c0bd4"
+      domain = "a59c57a8fa215a74b4ff66274d3042c0"
+      spf    = "5acd54f7e797fd4493d2f7f89de0c126"
+    }
+    "geo-location.net" = {
+      zone   = "f3fd7ec770e796be651a15ae1b33aa74"
+      domain = "ff9ac9b6039127e80911cd9af0178c6f"
+      spf    = "2631a0310557e146b40cdedfc6fadfd7"
+    }
+    "craftpledge.org" = {
+      zone   = "4d4b5640294da5e5579e0cb311a02bf1"
+      domain = "d06d7f596e35e777c489d028b9d06780"
+      spf    = "3ae328aa8aca288f58f57601ad8626da"
     }
   }
-
-  tags = var.tags
 }
 
-# DKIM CNAME record
-resource "azurerm_dns_cname_record" "acs_dkim" {
-  provider = azurerm.dns
-
-  for_each = { for d in local.azure_dns_domains : d.name => d }
-
-  name                = azurerm_email_communication_service_domain.custom[each.key].verification_records[0].dkim[0].name
-  zone_name           = each.key
-  resource_group_name = var.dns_resource_group_name
-  ttl                 = azurerm_email_communication_service_domain.custom[each.key].verification_records[0].dkim[0].ttl
-  record              = azurerm_email_communication_service_domain.custom[each.key].verification_records[0].dkim[0].value
-
-  tags = var.tags
+import {
+  for_each = { for d in local.cloudflare_domains : d.name => local.existing_cloudflare_acs_txt_records[d.name] if contains(keys(local.existing_cloudflare_acs_txt_records), d.name) }
+  to       = cloudflare_dns_record.acs_domain_verification[each.key]
+  id       = "${each.value.zone}/${each.value.domain}"
 }
 
-# DKIM2 CNAME record
-resource "azurerm_dns_cname_record" "acs_dkim2" {
-  provider = azurerm.dns
-
-  for_each = { for d in local.azure_dns_domains : d.name => d }
-
-  name                = azurerm_email_communication_service_domain.custom[each.key].verification_records[0].dkim2[0].name
-  zone_name           = each.key
-  resource_group_name = var.dns_resource_group_name
-  ttl                 = azurerm_email_communication_service_domain.custom[each.key].verification_records[0].dkim2[0].ttl
-  record              = azurerm_email_communication_service_domain.custom[each.key].verification_records[0].dkim2[0].value
-
-  tags = var.tags
+import {
+  for_each = { for d in local.cloudflare_domains : d.name => local.existing_cloudflare_acs_txt_records[d.name] if contains(keys(local.existing_cloudflare_acs_txt_records), d.name) }
+  to       = cloudflare_dns_record.acs_spf[each.key]
+  id       = "${each.value.zone}/${each.value.spf}"
 }
 
 # --- Cloudflare DNS records for ACS domain verification ---

@@ -11,11 +11,11 @@ sending_domains = [
     dns_provider = "cloudflare"
     spf_record   = "v=spf1 include:spf.protection.outlook.com include:spf.mandrillapp.com -all"
   },
-  { name = "molyneux.io", dns_provider = "azure" },
-  { name = "molyneux.me", dns_provider = "azure" },
-  { name = "molyneux.dev", dns_provider = "azure" },
-  { name = "geo-location.net", dns_provider = "azure" },
-  { name = "craftpledge.org", dns_provider = "azure" }
+  { name = "molyneux.io", dns_provider = "cloudflare" },
+  { name = "molyneux.me", dns_provider = "cloudflare" },
+  { name = "molyneux.dev", dns_provider = "cloudflare" },
+  { name = "geo-location.net", dns_provider = "cloudflare" },
+  { name = "craftpledge.org", dns_provider = "cloudflare" }
 ]
 
 api_consumers = [
