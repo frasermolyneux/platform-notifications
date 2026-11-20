@@ -28,10 +28,10 @@ resource "azapi_resource_action" "verify_domain" {
   lifecycle {
     replace_triggered_by = [
       azurerm_email_communication_service_domain.custom[each.key],
-      cloudflare_dns_record.acs_domain_verification,
-      cloudflare_dns_record.acs_spf,
-      cloudflare_dns_record.acs_dkim,
-      cloudflare_dns_record.acs_dkim2,
+      cloudflare_dns_record.acs_domain_verification[each.key],
+      cloudflare_dns_record.acs_spf[each.key],
+      cloudflare_dns_record.acs_dkim[each.key],
+      cloudflare_dns_record.acs_dkim2[each.key],
     ]
   }
 
