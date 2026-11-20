@@ -33,18 +33,7 @@ locals {
 
   app_role_ids = { for role in local.app_roles : role.value => role.id }
 
-  # Split domains by DNS provider
-  azure_dns_domains  = [for d in var.sending_domains : d if d.dns_provider == "azure"]
   cloudflare_domains = [for d in var.sending_domains : d if d.dns_provider == "cloudflare"]
-
-  # Pre-existing apex TXT values migrated from platform-connectivity.
-  # azurerm_dns_txt_record manages the entire record set at a given name, so
-  # any values not listed here will be REMOVED on apply. When onboarding a new
-  # Azure DNS domain, check the zone for existing apex TXT records and add them
-  # below. Domains with no pre-existing values can be omitted from this map.
-  additional_apex_txt_records = {
-    "molyneux.io" = ["MS=ms70605256"]
-  }
 
   app_insights_sampling_percentage = {
     dev = 25

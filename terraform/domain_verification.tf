@@ -19,9 +19,6 @@ resource "azapi_resource_action" "verify_domain" {
   locks       = [each.value.id]
 
   depends_on = [
-    azurerm_dns_txt_record.acs_apex,
-    azurerm_dns_cname_record.acs_dkim,
-    azurerm_dns_cname_record.acs_dkim2,
     cloudflare_dns_record.acs_domain_verification,
     cloudflare_dns_record.acs_spf,
     cloudflare_dns_record.acs_dkim,
@@ -31,9 +28,6 @@ resource "azapi_resource_action" "verify_domain" {
   lifecycle {
     replace_triggered_by = [
       azurerm_email_communication_service_domain.custom[each.key],
-      azurerm_dns_txt_record.acs_apex,
-      azurerm_dns_cname_record.acs_dkim,
-      azurerm_dns_cname_record.acs_dkim2,
       cloudflare_dns_record.acs_domain_verification,
       cloudflare_dns_record.acs_spf,
       cloudflare_dns_record.acs_dkim,
